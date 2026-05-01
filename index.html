@@ -406,6 +406,7 @@
     <div class="row" id="expand-actions" style="display:none;">
       <button onclick="insertExpanded()" class="btn-green">→ Send to Editor</button>
       <button onclick="continueExpanding()" class="btn-gold">✦ Keep Expanding</button>
+      <button onclick="polishPass()" class="btn-purple">✦ Polish Pass</button>
       <button onclick="copyExpanded()">Copy</button>
       <button onclick="clearExpander()">Clear</button>
     </div>
@@ -856,6 +857,45 @@ Expand further. Add at least ${Math.max(500, target - currentWords)} more words 
     showToast('Chapter inserted ✓');
   }
   function copyExpanded() { navigator.clipboard.writeText(document.getElementById('expand-output').textContent).then(()=>showToast('Copied ✓')); }
+
+  async function polishPass() {
+    if (!apiKey) { openSettings(); return; }
+    const output = document.getElementById('expand-output');
+    const currentText = output.textContent.trim();
+    if (!currentText) { showToast('Nothing to polish'); return; }
+    const thinking = document.getElementById('expand-thinking');
+    const stats = document.getElementById('expand-stats');
+    const progress = document.getElementById('expand-progress');
+    thinking.classList.add('visible');
+    progress.style.display = 'block';
+    progress.textContent = '✦ Polishing — fixing repetition, smoothing voice...';
+
+    const prompt = `You are a professional memoir editor. Polish this chapter with these specific goals:
+
+1. REMOVE REPETITION — find any phrases, ideas, or sentences that appear more than once and eliminate the duplicates, keeping the strongest version
+2. FIX POV — this is a first-person memoir. If any sentence slips into third person ("her", "she", "the child") rewrite it in first person ("I", "me", "my")
+3. SMOOTH TRANSITIONS — make sure paragraphs flow naturally into each other
+4. REMOVE CLICHÉS — replace phrases like "double-edged sword", "the other shoe to drop", "a dam had burst" with fresher, more specific language
+5. PRESERVE THE AUTHOR'S VOICE — do not rewrite the style. Only fix the issues above. The voice must remain unchanged.
+6. MAINTAIN WORD COUNT — do not significantly shorten the chapter
+
+${voiceProfile ? `AUTHOR VOICE PROFILE:\n${voiceProfile}\n\n` : ''}CHAPTER TO POLISH:
+${currentText}
+
+Return ONLY the polished chapter. No preamble, no notes, no explanation.`;
+
+    try {
+      const result = await groqCall([{role:'user',content:prompt}], getGenreSystem()+getVoiceContext(), 8000);
+      const beforeWords = currentText.split(/\s+/).length;
+      const afterWords = result.split(/\s+/).length;
+      output.textContent = result;
+      stats.textContent = `✦ Polished — ${beforeWords} → ${afterWords} words. Repetition removed, voice locked.`;
+      stats.classList.add('visible');
+      showToast('Polish complete ✓');
+    } catch(e) { showToast('API error — check Settings'); }
+    thinking.classList.remove('visible');
+    progress.style.display = 'none';
+  }
 
   /* ── Book Manager ── */
   function openBooks() { renderBooks(); document.getElementById('books-panel').classList.add('open'); }
