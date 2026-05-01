@@ -1,1 +1,675 @@
-<h1>coming soon</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#1a1610" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="AI Writer" />
+  <title>AI Writer Pro</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Inconsolata:wght@400;500&display=swap');
+
+    :root {
+      --bg: #1a1610;
+      --paper: #f5f0e8;
+      --ink: #1c1814;
+      --accent: #c4793a;
+      --green: #7a9e7e;
+      --muted: #8a7f72;
+      --toolbar: #211e18;
+      --border: #2e2a22;
+      --overlay: rgba(10,8,6,0.93);
+      --chat-bg: #16140f;
+      --user-bubble: #2a2318;
+      --ai-bubble: #1e2a1f;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: var(--bg); font-family: 'Lora', Georgia, serif; overflow: hidden; }
+
+    /* ── App layout ── */
+    #app { display: flex; flex-direction: column; height: 100dvh; }
+    #main-area { display: flex; flex: 1; overflow: hidden; }
+
+    /* ── Toolbar ── */
+    #toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 12px; background: var(--toolbar);
+      border-bottom: 1px solid var(--border); gap: 5px; flex-shrink: 0;
+    }
+    #toolbar .title {
+      font-family: 'Inconsolata', monospace; font-size: 11px;
+      color: var(--muted); white-space: nowrap; overflow: hidden;
+      text-overflow: ellipsis; max-width: 90px;
+    }
+    #toolbar .actions { display: flex; gap: 4px; flex-wrap: nowrap; align-items: center; }
+
+    button {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--muted); padding: 5px 9px;
+      font-family: 'Inconsolata', monospace; font-size: 11px;
+      letter-spacing: 0.04em; border-radius: 4px; cursor: pointer;
+      transition: all 0.15s ease; white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:active, button:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn-green { border-color: var(--green); color: var(--green); }
+    .btn-green:active, .btn-green:hover { background: var(--green); border-color: var(--green); color: #fff; }
+    .btn-danger:active, .btn-danger:hover { background: #7a2f2f; border-color: #7a2f2f; color: #fff; }
+
+    /* ── Stats bar ── */
+    #stats {
+      padding: 4px 14px; background: var(--toolbar);
+      border-bottom: 1px solid var(--border);
+      font-family: 'Inconsolata', monospace; font-size: 10px;
+      color: var(--muted); display: flex; gap: 12px;
+      align-items: center; flex-shrink: 0; flex-wrap: wrap;
+    }
+    .saved { color: #6aaa6a !important; }
+    #goal-bar-wrap {
+      display: flex; align-items: center; gap: 6px; margin-left: auto;
+    }
+    #goal-bar-track {
+      width: 80px; height: 4px; background: var(--border);
+      border-radius: 2px; overflow: hidden;
+    }
+    #goal-bar-fill {
+      height: 100%; width: 0%; background: var(--green);
+      border-radius: 2px; transition: width 0.4s ease;
+    }
+    #goal-label { font-size: 10px; color: var(--muted); }
+
+    /* ── Editor ── */
+    #editor-wrap {
+      flex: 1; overflow-y: auto; background: var(--bg);
+      display: flex; justify-content: center; padding: 24px 12px 80px;
+      transition: all 0.3s ease;
+    }
+    #editor {
+      width: 100%; max-width: 680px; min-height: 100%;
+      background: var(--paper); border-radius: 2px;
+      box-shadow: 0 4px 40px rgba(0,0,0,0.5);
+      padding: 44px 36px; font-family: 'Lora', Georgia, serif;
+      font-size: 17px; line-height: 1.85; color: var(--ink);
+      border: none; outline: none; resize: none; caret-color: var(--accent);
+      transition: all 0.3s ease;
+    }
+    #editor::placeholder { color: #b0a898; font-style: italic; }
+
+    /* ── Focus mode ── */
+    body.focus-mode #toolbar,
+    body.focus-mode #stats { opacity: 0; pointer-events: none; transition: opacity 0.4s; }
+    body.focus-mode #editor-wrap { padding-top: 48px; }
+    body.focus-mode #editor { box-shadow: none; max-width: 600px; }
+    body.focus-mode:active #toolbar,
+    body.focus-mode:hover #toolbar,
+    body.focus-mode:active #stats,
+    body.focus-mode:hover #stats { opacity: 1; pointer-events: auto; }
+
+    /* ── Chat panel ── */
+    #chat-panel {
+      width: 0; flex-shrink: 0; background: var(--chat-bg);
+      border-left: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      overflow: hidden; transition: width 0.3s ease;
+    }
+    #chat-panel.open { width: 320px; }
+    @media (max-width: 600px) {
+      #chat-panel.open { width: 100%; position: fixed; inset: 0; z-index: 100; }
+    }
+
+    #chat-header {
+      padding: 12px 14px; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-shrink: 0;
+    }
+    #chat-header span {
+      font-family: 'Inconsolata', monospace; font-size: 12px;
+      color: var(--green); letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    #chat-header button { padding: 4px 8px; font-size: 11px; }
+
+    #chat-messages {
+      flex: 1; overflow-y: auto; padding: 14px 12px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+
+    .msg {
+      max-width: 92%; padding: 10px 13px; border-radius: 6px;
+      font-size: 14px; line-height: 1.65; white-space: pre-wrap;
+    }
+    .msg.user {
+      background: var(--user-bubble); color: #d4c9b8;
+      border: 1px solid var(--border); align-self: flex-end;
+      font-family: 'Inconsolata', monospace; font-size: 13px;
+    }
+    .msg.ai {
+      background: var(--ai-bubble); color: #c8d8c9;
+      border: 1px solid #2a3a2b; align-self: flex-start;
+      font-family: 'Lora', serif;
+    }
+    .msg.ai.thinking {
+      color: var(--green); font-family: 'Inconsolata', monospace;
+      font-size: 12px; animation: pulse 1.2s infinite;
+    }
+    .msg.system-msg {
+      background: transparent; color: var(--muted);
+      font-family: 'Inconsolata', monospace; font-size: 11px;
+      align-self: center; text-align: center; border: none; padding: 4px;
+    }
+
+    @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+    #chat-input-area {
+      padding: 10px 12px; border-top: 1px solid var(--border);
+      display: flex; gap: 6px; flex-shrink: 0;
+    }
+    #chat-input {
+      flex: 1; background: #1a1814; border: 1px solid var(--border);
+      color: #d4c9b8; border-radius: 4px; padding: 8px 11px;
+      font-family: 'Lora', serif; font-size: 14px;
+      outline: none; resize: none; min-height: 40px; max-height: 100px;
+    }
+    #chat-input:focus { border-color: var(--green); }
+    #chat-input::placeholder { color: var(--muted); font-style: italic; }
+    #chat-send { padding: 8px 12px; align-self: flex-end; }
+    #chat-send:active, #chat-send:hover { background: var(--green); border-color: var(--green); color: #fff; }
+
+    #chat-context-note {
+      padding: 6px 12px; font-family: 'Inconsolata', monospace;
+      font-size: 10px; color: var(--muted); border-top: 1px solid var(--border);
+      text-align: center; flex-shrink: 0;
+    }
+
+    /* ── Quick AI panel (bottom) ── */
+    #ai-panel {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #1e1b15; border-top: 1px solid var(--border);
+      padding: 12px 14px; display: none; flex-direction: column; gap: 9px;
+      z-index: 50; max-height: 50vh; overflow-y: auto;
+    }
+    #ai-panel.open { display: flex; }
+    #ai-panel h3 {
+      font-family: 'Inconsolata', monospace; font-size: 11px;
+      color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .ai-modes { display: flex; gap: 5px; flex-wrap: wrap; }
+    .ai-modes button { font-size: 11px; padding: 4px 9px; }
+    .ai-modes button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    #ai-prompt-input {
+      background: #141210; border: 1px solid var(--border); color: #d4c9b8;
+      border-radius: 4px; padding: 9px 11px; font-family: 'Lora', serif;
+      font-size: 13px; width: 100%; min-height: 50px; resize: none; outline: none;
+    }
+    #ai-prompt-input:focus { border-color: var(--accent); }
+    #ai-result {
+      background: #141210; border: 1px solid var(--border); border-left: 3px solid var(--accent);
+      color: #d4c9b8; border-radius: 4px; padding: 12px 14px;
+      font-family: 'Lora', serif; font-size: 14px; line-height: 1.75;
+      display: none; white-space: pre-wrap;
+    }
+    #ai-result.visible { display: block; }
+    #ai-thinking {
+      color: var(--accent); font-family: 'Inconsolata', monospace;
+      font-size: 11px; display: none; animation: pulse 1.2s infinite;
+    }
+    #ai-thinking.visible { display: block; }
+    .row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .row button { font-size: 11px; padding: 5px 9px; }
+
+    /* ── Setup overlay ── */
+    .overlay {
+      position: fixed; inset: 0; background: var(--overlay);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200; padding: 20px;
+    }
+    .overlay.hidden { display: none; }
+    .card {
+      background: #211e18; border: 1px solid var(--border);
+      border-radius: 8px; padding: 28px 24px; max-width: 400px; width: 100%;
+    }
+    .card h2 {
+      font-family: 'Inconsolata', monospace; font-size: 16px;
+      color: var(--accent); margin-bottom: 8px;
+    }
+    .card p { color: var(--muted); font-size: 13px; line-height: 1.7; margin-bottom: 16px; }
+    .card a { color: var(--green); }
+    .card input {
+      width: 100%; background: #141210; border: 1px solid var(--border);
+      color: #d4c9b8; border-radius: 4px; padding: 10px 12px;
+      font-family: 'Inconsolata', monospace; font-size: 12px;
+      outline: none; margin-bottom: 12px;
+    }
+    .card input:focus { border-color: var(--accent); }
+    .card button { width: 100%; padding: 10px; font-size: 12px; }
+    .card button:hover, .card button:active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .skip { margin-top: 8px; text-align: center; font-family: 'Inconsolata', monospace; font-size: 11px; color: var(--muted); cursor: pointer; text-decoration: underline; }
+    label { display: block; font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* ── Word goal dialog ── */
+    #goal-dialog .card { max-width: 300px; }
+    #goal-dialog input[type=number] { width: 100%; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 80px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #2a2520; color: #d4c9b8;
+      border: 1px solid var(--border); border-left: 3px solid var(--accent);
+      padding: 9px 18px; border-radius: 4px;
+      font-family: 'Inconsolata', monospace; font-size: 12px;
+      transition: transform 0.3s ease; pointer-events: none; z-index: 400;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 480px) {
+      #editor { padding: 28px 18px; font-size: 16px; border-radius: 0; box-shadow: none; }
+      #editor-wrap { padding: 0 0 90px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Setup overlay -->
+<div id="setup-overlay" class="overlay">
+  <div class="card">
+    <h2>✦ AI Writer Pro</h2>
+    <p>Get your free Groq API key at <a href="https://console.groq.com" target="_blank">console.groq.com</a> — takes 2 minutes. Paste it below to unlock the AI features.</p>
+    <label>Groq API Key</label>
+    <input type="password" id="setup-key" placeholder="gsk_..." autocomplete="off" />
+    <button onclick="saveApiKey()">Start Writing</button>
+    <div class="skip" onclick="skipSetup()">Skip — write without AI for now</div>
+  </div>
+</div>
+
+<!-- Settings overlay -->
+<div id="settings-overlay" class="overlay hidden">
+  <div class="card">
+    <h2>⚙ Settings</h2>
+    <label>Groq API Key</label>
+    <input type="password" id="settings-key" placeholder="gsk_..." autocomplete="off" />
+    <label style="margin-top:12px;">Word Goal (daily target)</label>
+    <input type="number" id="settings-goal" placeholder="500" min="0" max="100000" />
+    <br>
+    <div class="row" style="margin-top:12px;">
+      <button onclick="saveSettings()" style="flex:1">Save</button>
+      <button onclick="closeSettings()" class="btn-danger" style="flex:1">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Main app -->
+<div id="app">
+  <div id="toolbar">
+    <span class="title" id="file-label">untitled.txt</span>
+    <div class="actions">
+      <button onclick="newFile()" class="btn-danger">New</button>
+      <button onclick="openFile()">Open</button>
+      <button onclick="saveFile()">Save</button>
+      <button onclick="toggleAI()" title="Quick AI tools">✦ AI</button>
+      <button onclick="toggleChat()" class="btn-green" title="AI Chat">💬</button>
+      <button onclick="toggleFocus()" title="Focus mode">◎</button>
+      <button onclick="openSettings()">⚙</button>
+    </div>
+  </div>
+
+  <div id="stats">
+    <span id="word-count">0 words</span>
+    <span id="char-count">0 chars</span>
+    <span id="save-status">—</span>
+    <div id="goal-bar-wrap" style="display:none;">
+      <div id="goal-bar-track"><div id="goal-bar-fill"></div></div>
+      <span id="goal-label">0 / 0</span>
+    </div>
+  </div>
+
+  <div id="main-area">
+    <div id="editor-wrap">
+      <textarea
+        id="editor"
+        placeholder="Begin writing. Your words auto-save as you go..."
+        spellcheck="true"
+        autocorrect="on"
+      ></textarea>
+    </div>
+
+    <!-- AI Chat Panel -->
+    <div id="chat-panel">
+      <div id="chat-header">
+        <span>✦ AI Writing Coach</span>
+        <button onclick="toggleChat()">✕</button>
+      </div>
+      <div id="chat-messages">
+        <div class="msg system-msg">I can see your document. Ask me anything about your writing.</div>
+      </div>
+      <div id="chat-context-note">📄 Document context: ON</div>
+      <div id="chat-input-area">
+        <textarea id="chat-input" placeholder="Ask your writing coach..." rows="1"></textarea>
+        <button id="chat-send" onclick="sendChat()">▶</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick AI Panel -->
+<div id="ai-panel">
+  <h3>✦ Quick AI Tools</h3>
+  <div class="ai-modes">
+    <button class="active" onclick="setMode(this,'continue')">Continue</button>
+    <button onclick="setMode(this,'rewrite')">Rewrite</button>
+    <button onclick="setMode(this,'expand')">Expand</button>
+    <button onclick="setMode(this,'summarize')">Summarize</button>
+    <button onclick="setMode(this,'custom')">Custom</button>
+  </div>
+  <textarea id="ai-prompt-input" rows="2" placeholder="Optional extra instructions..."></textarea>
+  <div class="row">
+    <button onclick="runAI()" style="border-color:var(--accent);color:var(--accent);">▶ Generate</button>
+    <button onclick="toggleAI()" style="margin-left:auto;">✕ Close</button>
+  </div>
+  <div id="ai-thinking">✦ thinking...</div>
+  <div id="ai-result"></div>
+  <div class="row" id="insert-actions" style="display:none;">
+    <button onclick="insertResult('append')" class="btn-green">Insert After</button>
+    <button onclick="insertResult('replace')" class="btn-green">Replace</button>
+    <button onclick="copyResult()">Copy</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  /* ── State ── */
+  let apiKey = localStorage.getItem('groq_api_key') || '';
+  let wordGoal = parseInt(localStorage.getItem('word_goal') || '0');
+  let currentMode = 'continue';
+  let lastResult = '';
+  let saveTimer = null;
+  let currentFileName = 'untitled.txt';
+  let chatHistory = [];
+  let isChatOpen = false;
+  let isAIPanelOpen = false;
+
+  /* ── Elements ── */
+  const editor = document.getElementById('editor');
+  const wordCountEl = document.getElementById('word-count');
+  const charCountEl = document.getElementById('char-count');
+  const saveStatusEl = document.getElementById('save-status');
+  const fileLabel = document.getElementById('file-label');
+  const toast = document.getElementById('toast');
+  const aiPanel = document.getElementById('ai-panel');
+  const aiResult = document.getElementById('ai-result');
+  const aiThinking = document.getElementById('ai-thinking');
+  const insertActions = document.getElementById('insert-actions');
+  const chatPanel = document.getElementById('chat-panel');
+  const chatMessages = document.getElementById('chat-messages');
+  const chatInput = document.getElementById('chat-input');
+  const goalBarWrap = document.getElementById('goal-bar-wrap');
+  const goalBarFill = document.getElementById('goal-bar-fill');
+  const goalLabel = document.getElementById('goal-label');
+
+  /* ── Init ── */
+  window.addEventListener('load', () => {
+    if (apiKey) document.getElementById('setup-overlay').classList.add('hidden');
+    const saved = localStorage.getItem('writer_autosave');
+    const savedName = localStorage.getItem('writer_filename');
+    if (saved) {
+      editor.value = saved;
+      if (savedName) { currentFileName = savedName; fileLabel.textContent = savedName; }
+      updateStats();
+      saveStatusEl.textContent = 'restored';
+      saveStatusEl.className = 'saved';
+    }
+    updateGoalBar();
+  });
+
+  /* ── Setup ── */
+  function saveApiKey() {
+    const key = document.getElementById('setup-key').value.trim();
+    if (!key.startsWith('gsk_')) { showToast('Key should start with gsk_'); return; }
+    localStorage.setItem('groq_api_key', key);
+    apiKey = key;
+    document.getElementById('setup-overlay').classList.add('hidden');
+    showToast('Key saved ✓ AI features unlocked');
+  }
+  function skipSetup() { document.getElementById('setup-overlay').classList.add('hidden'); }
+
+  /* ── Settings ── */
+  function openSettings() {
+    document.getElementById('settings-key').value = apiKey;
+    document.getElementById('settings-goal').value = wordGoal || '';
+    document.getElementById('settings-overlay').classList.remove('hidden');
+  }
+  function closeSettings() { document.getElementById('settings-overlay').classList.add('hidden'); }
+  function saveSettings() {
+    const key = document.getElementById('settings-key').value.trim();
+    const goal = parseInt(document.getElementById('settings-goal').value) || 0;
+    if (key.startsWith('gsk_')) { localStorage.setItem('groq_api_key', key); apiKey = key; }
+    wordGoal = goal;
+    localStorage.setItem('word_goal', goal);
+    updateGoalBar();
+    closeSettings();
+    showToast('Saved ✓');
+  }
+
+  /* ── Stats + Goal ── */
+  function getWordCount() {
+    const text = editor.value.trim();
+    return text === '' ? 0 : text.split(/\s+/).length;
+  }
+  function updateStats() {
+    const words = getWordCount();
+    wordCountEl.textContent = `${words} word${words !== 1 ? 's' : ''}`;
+    charCountEl.textContent = `${editor.value.length} chars`;
+    updateGoalBar(words);
+  }
+  function updateGoalBar(words) {
+    if (!words) words = getWordCount();
+    if (wordGoal > 0) {
+      goalBarWrap.style.display = 'flex';
+      const pct = Math.min(100, Math.round((words / wordGoal) * 100));
+      goalBarFill.style.width = pct + '%';
+      goalBarFill.style.background = pct >= 100 ? '#c4793a' : 'var(--green)';
+      goalLabel.textContent = `${words} / ${wordGoal}`;
+    } else {
+      goalBarWrap.style.display = 'none';
+    }
+  }
+
+  /* ── Autosave ── */
+  function autosave() {
+    localStorage.setItem('writer_autosave', editor.value);
+    localStorage.setItem('writer_filename', currentFileName);
+    saveStatusEl.textContent = 'autosaved';
+    saveStatusEl.className = 'saved';
+  }
+  editor.addEventListener('input', () => {
+    updateStats();
+    saveStatusEl.textContent = 'editing…';
+    saveStatusEl.className = '';
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(autosave, 1200);
+  });
+
+  /* ── File ops ── */
+  function newFile() {
+    if (editor.value.trim() && !confirm('Start new file? Unsaved changes will be cleared.')) return;
+    editor.value = ''; currentFileName = 'untitled.txt'; fileLabel.textContent = currentFileName;
+    localStorage.removeItem('writer_autosave'); localStorage.removeItem('writer_filename');
+    updateStats(); saveStatusEl.textContent = '—'; saveStatusEl.className = '';
+    editor.focus();
+  }
+  function openFile() {
+    const input = document.createElement('input');
+    input.type = 'file'; input.accept = '.txt,.md,.text';
+    input.onchange = e => {
+      const file = e.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        editor.value = ev.target.result; currentFileName = file.name;
+        fileLabel.textContent = file.name; autosave(); updateStats(); editor.focus();
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+  function saveFile() {
+    const blob = new Blob([editor.value], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = currentFileName; a.click();
+    URL.revokeObjectURL(url); showToast('Downloaded ✓');
+  }
+
+  /* ── Focus mode ── */
+  function toggleFocus() {
+    document.body.classList.toggle('focus-mode');
+    showToast(document.body.classList.contains('focus-mode') ? 'Focus mode ON — tap screen to show toolbar' : 'Focus mode OFF');
+  }
+
+  /* ── Quick AI panel ── */
+  function toggleAI() {
+    isAIPanelOpen = !isAIPanelOpen;
+    aiPanel.classList.toggle('open', isAIPanelOpen);
+    if (isAIPanelOpen && !apiKey) showToast('Add your Groq key in ⚙ Settings');
+  }
+  function setMode(btn, mode) {
+    document.querySelectorAll('.ai-modes button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); currentMode = mode;
+    const hints = { continue: 'Tone, direction, length...', rewrite: 'Style notes...', expand: 'What aspect...', summarize: 'Target length...', custom: 'Exactly what you want...' };
+    document.getElementById('ai-prompt-input').placeholder = hints[mode];
+  }
+  async function runAI() {
+    if (!apiKey) { openSettings(); return; }
+    const text = editor.value;
+    const extra = document.getElementById('ai-prompt-input').value.trim();
+    const selected = getSelectedText();
+    if (!text.trim() && currentMode !== 'custom') { showToast('Write something first'); return; }
+    const prompts = {
+      continue: `Continue this writing naturally. Match the voice and tone exactly. Write the next 2-3 paragraphs. ${extra}\n\nText:\n${text.slice(-1500)}`,
+      rewrite: `Rewrite this passage. Improve clarity and flow while preserving the author's voice. ${extra}\n\nPassage:\n${selected || text.slice(-800)}`,
+      expand: `Expand this passage with more detail, depth, and texture. ${extra}\n\nPassage:\n${selected || text.slice(-800)}`,
+      summarize: `Summarize the following into a concise, clear paragraph. ${extra}\n\nText:\n${text.slice(-2000)}`,
+      custom: extra || ('Help me improve this writing:\n' + text.slice(-1000))
+    };
+    aiThinking.classList.add('visible');
+    aiResult.classList.remove('visible');
+    insertActions.style.display = 'none'; lastResult = '';
+    try {
+      const res = await groqCall([{ role: 'user', content: prompts[currentMode] }],
+        'You are an expert writing assistant. Respond with only the requested writing — no preamble, no explanation. Just the writing itself.');
+      lastResult = res;
+      aiResult.textContent = lastResult; aiResult.classList.add('visible');
+      insertActions.style.display = 'flex';
+    } catch(e) { showToast('API error — check your key in ⚙ Settings'); }
+    aiThinking.classList.remove('visible');
+  }
+  function getSelectedText() {
+    const s = editor.selectionStart, e = editor.selectionEnd;
+    return s !== e ? editor.value.slice(s, e) : '';
+  }
+  function insertResult(mode) {
+    if (!lastResult) return;
+    if (mode === 'append') {
+      editor.value += '\n\n' + lastResult;
+    } else {
+      const s = editor.selectionStart, e = editor.selectionEnd;
+      editor.value = s !== e
+        ? editor.value.slice(0, s) + lastResult + editor.value.slice(e)
+        : editor.value + '\n\n' + lastResult;
+    }
+    updateStats(); autosave(); toggleAI(); editor.focus(); showToast('Inserted ✓');
+  }
+  function copyResult() { navigator.clipboard.writeText(lastResult).then(() => showToast('Copied ✓')); }
+
+  /* ── AI Chat ── */
+  function toggleChat() {
+    isChatOpen = !isChatOpen;
+    chatPanel.classList.toggle('open', isChatOpen);
+    if (isChatOpen && !apiKey) showToast('Add your Groq key in ⚙ Settings');
+    if (isChatOpen) chatInput.focus();
+  }
+
+  chatInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+  });
+
+  async function sendChat() {
+    const msg = chatInput.value.trim();
+    if (!msg) return;
+    if (!apiKey) { openSettings(); return; }
+
+    chatInput.value = '';
+    appendChatMsg('user', msg);
+
+    // Build system prompt with document context
+    const docContext = editor.value.trim()
+      ? `The user is working on the following document:\n\n---\n${editor.value.slice(0, 3000)}\n---\n\nUse this context to give specific, relevant writing advice. Reference their actual words when helpful.`
+      : 'The user has not written anything yet. Help them get started.';
+
+    const systemPrompt = `You are an expert writing coach and creative collaborator. You are warm, encouraging, and highly specific in your feedback. ${docContext}\n\nBe conversational, direct, and genuinely helpful. When giving feedback, be specific — quote their words, suggest actual alternatives, explain the why. Keep responses concise unless depth is needed.`;
+
+    // Add user turn to history
+    chatHistory.push({ role: 'user', content: msg });
+
+    const thinking = appendChatMsg('ai', '✦ thinking...', true);
+
+    try {
+      const reply = await groqCall(chatHistory, systemPrompt, 700);
+      thinking.remove();
+      chatHistory.push({ role: 'assistant', content: reply });
+      appendChatMsg('ai', reply);
+    } catch(e) {
+      thinking.remove();
+      appendChatMsg('ai', 'Connection error. Check your API key in ⚙ Settings.');
+    }
+  }
+
+  function appendChatMsg(role, text, isThinking = false) {
+    const div = document.createElement('div');
+    div.className = `msg ${role}${isThinking ? ' thinking' : ''}`;
+    div.textContent = text;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  /* ── Shared Groq call ── */
+  async function groqCall(messages, systemPrompt, maxTokens = 600) {
+    const payload = {
+      model: 'llama-3.3-70b-versatile',
+      max_tokens: maxTokens,
+      temperature: 0.75,
+      messages: systemPrompt
+        ? [{ role: 'system', content: systemPrompt }, ...messages]
+        : messages
+    };
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    return data.choices[0].message.content.trim();
+  }
+
+  /* ── Toast ── */
+  function showToast(msg) {
+    toast.textContent = msg; toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2400);
+  }
+
+  /* ── Keyboard shortcuts ── */
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveFile(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'o') { e.preventDefault(); openFile(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); newFile(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'i') { e.preventDefault(); toggleAI(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); toggleChat(); }
+  });
+</script>
+</body>
+</html>
