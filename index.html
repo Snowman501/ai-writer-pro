@@ -20,63 +20,67 @@
       --green: #7a9e7e;
       --blue: #6a8fa8;
       --purple: #9a7ab8;
+      --gold: #b8963a;
+      --red: #a85a5a;
       --muted: #8a7f72;
       --toolbar: #211e18;
       --border: #2e2a22;
-      --overlay: rgba(10,8,6,0.93);
+      --overlay: rgba(10,8,6,0.95);
       --chat-bg: #16140f;
       --user-bubble: #2a2318;
       --ai-bubble: #1e2a1f;
+      --card-bg: #1e1b15;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; background: var(--bg); font-family: 'Lora', Georgia, serif; overflow: hidden; }
-
     #app { display: flex; flex-direction: column; height: 100dvh; }
     #main-area { display: flex; flex: 1; overflow: hidden; }
 
     /* ── Tabs ── */
     #tabs-bar {
-      display: flex; align-items: center;
-      background: #18150f; border-bottom: 1px solid var(--border);
-      overflow-x: auto; flex-shrink: 0; gap: 0;
-      scrollbar-width: none;
+      display: flex; align-items: center; background: #18150f;
+      border-bottom: 1px solid var(--border); overflow-x: auto;
+      flex-shrink: 0; scrollbar-width: none;
     }
     #tabs-bar::-webkit-scrollbar { display: none; }
     .tab {
-      display: flex; align-items: center; gap: 6px;
-      padding: 7px 14px; font-family: 'Inconsolata', monospace;
-      font-size: 11px; color: var(--muted); border-right: 1px solid var(--border);
-      cursor: pointer; white-space: nowrap; flex-shrink: 0;
-      transition: all 0.15s; -webkit-tap-highlight-color: transparent;
-      min-width: 80px; max-width: 140px;
+      display: flex; align-items: center; gap: 5px; padding: 6px 12px;
+      font-family: 'Inconsolata', monospace; font-size: 11px; color: var(--muted);
+      border-right: 1px solid var(--border); cursor: pointer; white-space: nowrap;
+      flex-shrink: 0; transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+      min-width: 80px; max-width: 130px;
     }
-    .tab span { overflow: hidden; text-overflow: ellipsis; }
+    .tab span.tab-name { overflow: hidden; text-overflow: ellipsis; flex: 1; }
     .tab.active { background: var(--toolbar); color: #d4c9b8; border-bottom: 2px solid var(--accent); }
-    .tab .close-tab { opacity: 0.4; font-size: 13px; margin-left: auto; padding: 0 2px; flex-shrink: 0; }
-    .tab .close-tab:active { opacity: 1; color: #e07070; }
-    #new-tab-btn {
-      padding: 7px 12px; color: var(--muted); font-size: 16px;
-      cursor: pointer; flex-shrink: 0; -webkit-tap-highlight-color: transparent;
-      transition: color 0.15s;
-    }
+    .tab .close-tab { opacity: 0.4; font-size: 12px; flex-shrink: 0; }
+    .tab .close-tab:active { opacity: 1; color: var(--red); }
+    #new-tab-btn { padding: 6px 12px; color: var(--muted); font-size: 16px; cursor: pointer; flex-shrink: 0; -webkit-tap-highlight-color: transparent; }
     #new-tab-btn:active { color: var(--accent); }
+
+    /* ── Genre badge ── */
+    #genre-badge {
+      padding: 3px 10px; background: var(--toolbar); border-bottom: 1px solid var(--border);
+      font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--gold);
+      display: flex; align-items: center; gap: 8px; flex-shrink: 0; cursor: pointer;
+    }
+    #genre-badge span { opacity: 0.6; color: var(--muted); }
 
     /* ── Toolbar ── */
     #toolbar {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 8px 10px; background: var(--toolbar);
-      border-bottom: 1px solid var(--border); gap: 4px; flex-shrink: 0;
+      padding: 7px 10px; background: var(--toolbar);
+      border-bottom: 1px solid var(--border); gap: 3px; flex-shrink: 0;
     }
-    #toolbar .actions { display: flex; gap: 3px; flex-wrap: nowrap; align-items: center; }
+    #toolbar .actions { display: flex; gap: 3px; flex-wrap: nowrap; align-items: center; overflow-x: auto; }
 
     button {
       background: transparent; border: 1px solid var(--border);
-      color: var(--muted); padding: 5px 8px;
-      font-family: 'Inconsolata', monospace; font-size: 11px;
+      color: var(--muted); padding: 5px 7px;
+      font-family: 'Inconsolata', monospace; font-size: 10px;
       letter-spacing: 0.03em; border-radius: 4px; cursor: pointer;
       transition: all 0.15s ease; white-space: nowrap;
-      -webkit-tap-highlight-color: transparent;
+      -webkit-tap-highlight-color: transparent; flex-shrink: 0;
     }
     button:active, button:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
     .btn-green { border-color: var(--green); color: var(--green); }
@@ -85,89 +89,120 @@
     .btn-blue:active, .btn-blue:hover { background: var(--blue); border-color: var(--blue); color: #fff; }
     .btn-purple { border-color: var(--purple); color: var(--purple); }
     .btn-purple:active, .btn-purple:hover { background: var(--purple); border-color: var(--purple); color: #fff; }
+    .btn-gold { border-color: var(--gold); color: var(--gold); }
+    .btn-gold:active, .btn-gold:hover { background: var(--gold); border-color: var(--gold); color: #fff; }
     .btn-danger:active, .btn-danger:hover { background: #7a2f2f; border-color: #7a2f2f; color: #fff; }
 
     /* ── Stats ── */
     #stats {
-      padding: 3px 12px; background: var(--toolbar);
-      border-bottom: 1px solid var(--border);
-      font-family: 'Inconsolata', monospace; font-size: 10px;
-      color: var(--muted); display: flex; gap: 10px;
-      align-items: center; flex-shrink: 0; flex-wrap: wrap;
+      padding: 3px 12px; background: var(--toolbar); border-bottom: 1px solid var(--border);
+      font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--muted);
+      display: flex; gap: 10px; align-items: center; flex-shrink: 0;
     }
     .saved { color: #6aaa6a !important; }
     #goal-bar-wrap { display: flex; align-items: center; gap: 5px; margin-left: auto; }
-    #goal-bar-track { width: 70px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
-    #goal-bar-fill { height: 100%; width: 0%; background: var(--green); border-radius: 2px; transition: width 0.4s ease; }
+    #goal-bar-track { width: 60px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    #goal-bar-fill { height: 100%; width: 0%; background: var(--green); border-radius: 2px; transition: width 0.4s; }
 
-    /* ── Read aloud indicator ── */
-    #reading-bar {
-      display: none; padding: 5px 12px; background: #1a2a1a;
-      border-bottom: 1px solid var(--green);
-      font-family: 'Inconsolata', monospace; font-size: 11px;
-      color: var(--green); align-items: center; gap: 10px; flex-shrink: 0;
-    }
+    /* ── Reading bar ── */
+    #reading-bar { display: none; padding: 4px 12px; background: #1a2a1a; border-bottom: 1px solid var(--green); font-family: 'Inconsolata', monospace; font-size: 11px; color: var(--green); align-items: center; gap: 10px; flex-shrink: 0; }
     #reading-bar.visible { display: flex; }
-    #reading-bar .dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 1s infinite; }
-    #stop-reading { font-size: 10px; margin-left: auto; }
+    #reading-bar .dot { width: 5px; height: 5px; background: var(--green); border-radius: 50%; animation: pulse 1s infinite; }
 
     /* ── Editor ── */
-    #editor-wrap {
-      flex: 1; overflow-y: auto; background: var(--bg);
-      display: flex; justify-content: center; padding: 20px 12px 90px;
-    }
-    #editor {
-      width: 100%; max-width: 680px; min-height: 100%;
-      background: var(--paper); border-radius: 2px;
-      box-shadow: 0 4px 40px rgba(0,0,0,0.5);
-      padding: 40px 34px; font-family: 'Lora', Georgia, serif;
-      font-size: 17px; line-height: 1.85; color: var(--ink);
-      border: none; outline: none; resize: none; caret-color: var(--accent);
-    }
+    #editor-wrap { flex: 1; overflow-y: auto; background: var(--bg); display: flex; justify-content: center; padding: 18px 10px 90px; }
+    #editor { width: 100%; max-width: 680px; min-height: 100%; background: var(--paper); border-radius: 2px; box-shadow: 0 4px 40px rgba(0,0,0,0.5); padding: 38px 32px; font-family: 'Lora', Georgia, serif; font-size: 17px; line-height: 1.85; color: var(--ink); border: none; outline: none; resize: none; caret-color: var(--accent); }
     #editor::placeholder { color: #b0a898; font-style: italic; }
 
-    /* ── Focus mode ── */
-    body.focus-mode #toolbar, body.focus-mode #stats,
-    body.focus-mode #tabs-bar { opacity: 0; pointer-events: none; transition: opacity 0.4s; }
-    body.focus-mode:active #toolbar, body.focus-mode:hover #toolbar,
-    body.focus-mode:active #stats, body.focus-mode:hover #stats,
-    body.focus-mode:active #tabs-bar, body.focus-mode:hover #tabs-bar { opacity: 1; pointer-events: auto; }
+    body.focus-mode #toolbar, body.focus-mode #stats, body.focus-mode #tabs-bar, body.focus-mode #genre-badge { opacity: 0; pointer-events: none; transition: opacity 0.4s; }
+    body.focus-mode:active #toolbar, body.focus-mode:hover #toolbar, body.focus-mode:active #stats, body.focus-mode:hover #stats, body.focus-mode:active #tabs-bar, body.focus-mode:hover #tabs-bar, body.focus-mode:active #genre-badge, body.focus-mode:hover #genre-badge { opacity: 1; pointer-events: auto; }
 
     /* ── Chat panel ── */
-    #chat-panel {
-      width: 0; flex-shrink: 0; background: var(--chat-bg);
-      border-left: 1px solid var(--border);
-      display: flex; flex-direction: column;
-      overflow: hidden; transition: width 0.3s ease;
-    }
+    #chat-panel { width: 0; flex-shrink: 0; background: var(--chat-bg); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; transition: width 0.3s ease; }
     #chat-panel.open { width: 300px; }
-    @media (max-width: 600px) {
-      #chat-panel.open { width: 100%; position: fixed; inset: 0; z-index: 100; }
-    }
-    #chat-header {
-      padding: 10px 12px; border-bottom: 1px solid var(--border);
-      display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
-    }
+    @media (max-width: 600px) { #chat-panel.open { width: 100%; position: fixed; inset: 0; z-index: 100; } }
+    #chat-header { padding: 9px 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
     #chat-header span { font-family: 'Inconsolata', monospace; font-size: 11px; color: var(--green); letter-spacing: 0.08em; text-transform: uppercase; }
-    #chat-messages { flex: 1; overflow-y: auto; padding: 12px 10px; display: flex; flex-direction: column; gap: 9px; }
-    .msg { max-width: 92%; padding: 9px 12px; border-radius: 6px; font-size: 13px; line-height: 1.6; white-space: pre-wrap; }
+    #chat-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .msg { max-width: 92%; padding: 8px 11px; border-radius: 6px; font-size: 13px; line-height: 1.6; white-space: pre-wrap; }
     .msg.user { background: var(--user-bubble); color: #d4c9b8; border: 1px solid var(--border); align-self: flex-end; font-family: 'Inconsolata', monospace; font-size: 12px; }
-    .msg.ai { background: var(--ai-bubble); color: #c8d8c9; border: 1px solid #2a3a2b; align-self: flex-start; font-family: 'Lora', serif; }
+    .msg.ai { background: var(--ai-bubble); color: #c8d8c9; border: 1px solid #2a3a2b; align-self: flex-start; }
     .msg.ai.thinking { color: var(--green); font-family: 'Inconsolata', monospace; font-size: 11px; animation: pulse 1.2s infinite; }
     .msg.system-msg { background: transparent; color: var(--muted); font-family: 'Inconsolata', monospace; font-size: 10px; align-self: center; text-align: center; border: none; padding: 3px; }
-    #chat-context-note { padding: 5px 10px; font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--muted); border-top: 1px solid var(--border); text-align: center; flex-shrink: 0; }
+    #chat-context-note { padding: 4px 10px; font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--muted); border-top: 1px solid var(--border); text-align: center; flex-shrink: 0; }
     #chat-input-area { padding: 8px 10px; border-top: 1px solid var(--border); display: flex; gap: 5px; flex-shrink: 0; }
-    #chat-input { flex: 1; background: #1a1814; border: 1px solid var(--border); color: #d4c9b8; border-radius: 4px; padding: 7px 10px; font-family: 'Lora', serif; font-size: 13px; outline: none; resize: none; min-height: 38px; max-height: 90px; }
+    #chat-input { flex: 1; background: #1a1814; border: 1px solid var(--border); color: #d4c9b8; border-radius: 4px; padding: 7px 10px; font-family: 'Lora', serif; font-size: 13px; outline: none; resize: none; min-height: 36px; max-height: 80px; }
     #chat-input:focus { border-color: var(--green); }
     #chat-input::placeholder { color: var(--muted); font-style: italic; }
 
+    /* ── Full screen panels ── */
+    .fs-panel { position: fixed; inset: 0; background: var(--bg); z-index: 150; display: none; flex-direction: column; }
+    .fs-panel.open { display: flex; }
+    .fs-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--toolbar); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .fs-header h2 { font-family: 'Inconsolata', monospace; font-size: 14px; color: var(--accent); letter-spacing: 0.06em; }
+    .fs-body { flex: 1; overflow-y: auto; padding: 16px; }
+
+    /* ── Chapter Expander ── */
+    #expander-panel .fs-body { display: flex; flex-direction: column; gap: 12px; }
+    .expander-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .expander-controls select { background: var(--card-bg); border: 1px solid var(--border); color: #d4c9b8; border-radius: 4px; padding: 6px 10px; font-family: 'Inconsolata', monospace; font-size: 11px; outline: none; }
+    .expander-controls input[type=number] { background: var(--card-bg); border: 1px solid var(--border); color: #d4c9b8; border-radius: 4px; padding: 6px 10px; font-family: 'Inconsolata', monospace; font-size: 11px; outline: none; width: 90px; }
+    #expand-input { background: var(--card-bg); border: 1px solid var(--border); color: #d4c9b8; border-radius: 4px; padding: 12px; font-family: 'Lora', serif; font-size: 14px; line-height: 1.75; width: 100%; min-height: 180px; resize: vertical; outline: none; }
+    #expand-input:focus { border-color: var(--accent); }
+    #expand-output { background: var(--paper); color: var(--ink); border-radius: 4px; padding: 20px 24px; font-family: 'Lora', serif; font-size: 16px; line-height: 1.85; min-height: 200px; display: none; white-space: pre-wrap; }
+    #expand-output.visible { display: block; }
+    #expand-thinking { color: var(--accent); font-family: 'Inconsolata', monospace; font-size: 11px; display: none; animation: pulse 1.2s infinite; }
+    #expand-thinking.visible { display: block; }
+    .expand-stats { font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--muted); display: none; }
+    .expand-stats.visible { display: block; }
+
+    /* ── Book Manager ── */
+    #books-panel .fs-body { display: flex; flex-direction: column; gap: 10px; }
+    .book-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 14px; cursor: pointer; transition: all 0.15s; }
+    .book-card:active, .book-card.active { border-color: var(--accent); }
+    .book-card h3 { font-family: 'Inconsolata', monospace; font-size: 13px; color: #d4c9b8; margin-bottom: 4px; }
+    .book-card .book-meta { font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--muted); display: flex; gap: 10px; }
+    .book-card .book-genre { color: var(--gold); }
+    .book-card .book-progress { margin-top: 8px; }
+    .book-card .progress-bar { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 4px; }
+    .book-card .progress-fill { height: 100%; background: var(--green); border-radius: 2px; }
+    .new-book-form { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .new-book-form input, .new-book-form select, .new-book-form textarea { background: #141210; border: 1px solid var(--border); color: #d4c9b8; border-radius: 4px; padding: 8px 10px; font-family: 'Inconsolata', monospace; font-size: 11px; outline: none; width: 100%; }
+    .new-book-form input:focus, .new-book-form select:focus { border-color: var(--accent); }
+    .new-book-form textarea { font-family: 'Lora', serif; font-size: 13px; min-height: 60px; resize: none; }
+
+    /* ── Genre Selector ── */
+    #genre-panel { position: fixed; inset: 0; background: var(--overlay); display: none; align-items: center; justify-content: center; z-index: 180; padding: 20px; }
+    #genre-panel.open { display: flex; }
+    .genre-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .genre-btn { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 14px 12px; text-align: center; cursor: pointer; transition: all 0.15s; -webkit-tap-highlight-color: transparent; }
+    .genre-btn:active { border-color: var(--accent); background: #2a2018; }
+    .genre-btn .genre-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+    .genre-btn .genre-name { font-family: 'Inconsolata', monospace; font-size: 11px; color: #d4c9b8; }
+    .genre-btn .genre-desc { font-family: 'Inconsolata', monospace; font-size: 9px; color: var(--muted); margin-top: 2px; }
+
+    /* ── Voice Analyzer ── */
+    #voice-panel .fs-body { display: flex; flex-direction: column; gap: 12px; }
+    #voice-sample { background: var(--card-bg); border: 1px solid var(--border); color: #d4c9b8; border-radius: 4px; padding: 12px; font-family: 'Lora', serif; font-size: 14px; line-height: 1.75; width: 100%; min-height: 200px; resize: none; outline: none; }
+    #voice-sample:focus { border-color: var(--gold); }
+    #voice-result { background: var(--card-bg); border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 4px; padding: 14px; display: none; }
+    #voice-result.visible { display: block; }
+    #voice-result h4 { font-family: 'Inconsolata', monospace; font-size: 11px; color: var(--gold); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.08em; }
+    #voice-result p { color: #d4c9b8; font-size: 13px; line-height: 1.7; }
+    #voice-thinking { color: var(--gold); font-family: 'Inconsolata', monospace; font-size: 11px; display: none; animation: pulse 1.2s infinite; }
+    #voice-thinking.visible { display: block; }
+    .voice-locked { background: #1a1500; border: 1px solid var(--gold); border-radius: 4px; padding: 10px 12px; font-family: 'Inconsolata', monospace; font-size: 11px; color: var(--gold); display: none; }
+    .voice-locked.visible { display: flex; align-items: center; gap: 8px; }
+
+    /* ── Series Bible ── */
+    #bible-panel .fs-body { display: flex; flex-direction: column; gap: 10px; }
+    .bible-section { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px; }
+    .bible-section h4 { font-family: 'Inconsolata', monospace; font-size: 11px; color: var(--blue); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .bible-section textarea { background: #141210; border: 1px solid var(--border); color: #d4c9b8; border-radius: 4px; padding: 8px 10px; font-family: 'Lora', serif; font-size: 13px; width: 100%; min-height: 80px; resize: none; outline: none; }
+    .bible-section textarea:focus { border-color: var(--blue); }
+
     /* ── Mood panel ── */
-    #mood-panel {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: #160f1e; border-top: 2px solid var(--purple);
-      padding: 14px; display: none; flex-direction: column; gap: 10px;
-      z-index: 60; max-height: 55vh; overflow-y: auto;
-    }
+    #mood-panel { position: fixed; bottom: 0; left: 0; right: 0; background: #160f1e; border-top: 2px solid var(--purple); padding: 12px; display: none; flex-direction: column; gap: 9px; z-index: 60; max-height: 55vh; overflow-y: auto; }
     #mood-panel.open { display: flex; }
     #mood-header { display: flex; justify-content: space-between; align-items: center; }
     #mood-header h3 { font-family: 'Inconsolata', monospace; font-size: 11px; color: var(--purple); letter-spacing: 0.1em; text-transform: uppercase; }
@@ -175,88 +210,72 @@
     #mood-result.visible { display: block; }
     #mood-thinking { color: var(--purple); font-family: 'Inconsolata', monospace; font-size: 11px; display: none; animation: pulse 1.2s infinite; }
     #mood-thinking.visible { display: block; }
-    .mood-suno { background: #1e1530; border: 1px solid var(--purple); border-radius: 6px; padding: 12px 14px; margin-top: 6px; display: none; }
+    .mood-suno { background: #1e1530; border: 1px solid var(--purple); border-radius: 6px; padding: 12px; margin-top: 4px; display: none; }
     .mood-suno.visible { display: block; }
-    .mood-suno h4 { font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--purple); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+    .mood-suno h4 { font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--purple); text-transform: uppercase; margin-bottom: 6px; }
     .mood-suno p { color: #c8b8d8; font-size: 13px; line-height: 1.6; font-style: italic; }
 
     /* ── Prompts panel ── */
-    #prompts-panel {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: #0f1820; border-top: 2px solid var(--blue);
-      padding: 14px; display: none; flex-direction: column; gap: 10px;
-      z-index: 60; max-height: 60vh; overflow-y: auto;
-    }
+    #prompts-panel { position: fixed; bottom: 0; left: 0; right: 0; background: #0f1820; border-top: 2px solid var(--blue); padding: 12px; display: none; flex-direction: column; gap: 9px; z-index: 60; max-height: 60vh; overflow-y: auto; }
     #prompts-panel.open { display: flex; }
     #prompts-header { display: flex; justify-content: space-between; align-items: center; }
     #prompts-header h3 { font-family: 'Inconsolata', monospace; font-size: 11px; color: var(--blue); letter-spacing: 0.1em; text-transform: uppercase; }
-    .prompt-type-row { display: flex; gap: 6px; flex-wrap: wrap; }
-    .prompt-type-row button { font-size: 10px; padding: 4px 8px; border-color: var(--blue); color: var(--blue); }
+    .prompt-type-row { display: flex; gap: 5px; flex-wrap: wrap; }
+    .prompt-type-row button { font-size: 10px; padding: 4px 7px; border-color: var(--blue); color: var(--blue); }
     .prompt-type-row button.active { background: var(--blue); color: #fff; }
-    #prompts-list { display: flex; flex-direction: column; gap: 8px; }
-    .prompt-card {
-      background: #141e26; border: 1px solid #2a3a4a; border-left: 3px solid var(--blue);
-      border-radius: 4px; padding: 12px 14px; cursor: pointer;
-      color: #c8d8e8; font-family: 'Lora', serif; font-size: 14px;
-      line-height: 1.65; transition: all 0.15s;
-    }
-    .prompt-card:active { border-left-color: var(--accent); background: #1a2830; }
+    #prompts-list { display: flex; flex-direction: column; gap: 7px; }
+    .prompt-card { background: #141e26; border: 1px solid #2a3a4a; border-left: 3px solid var(--blue); border-radius: 4px; padding: 11px 13px; cursor: pointer; color: #c8d8e8; font-family: 'Lora', serif; font-size: 14px; line-height: 1.65; transition: all 0.15s; }
+    .prompt-card:active { border-left-color: var(--accent); }
     #prompts-thinking { color: var(--blue); font-family: 'Inconsolata', monospace; font-size: 11px; display: none; animation: pulse 1.2s infinite; }
     #prompts-thinking.visible { display: block; }
 
-    /* ── Quick AI panel ── */
-    #ai-panel {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: #1e1b15; border-top: 1px solid var(--border);
-      padding: 12px; display: none; flex-direction: column; gap: 8px;
-      z-index: 50; max-height: 50vh; overflow-y: auto;
-    }
+    /* ── Quick AI ── */
+    #ai-panel { position: fixed; bottom: 0; left: 0; right: 0; background: #1e1b15; border-top: 1px solid var(--border); padding: 11px; display: none; flex-direction: column; gap: 8px; z-index: 50; max-height: 50vh; overflow-y: auto; }
     #ai-panel.open { display: flex; }
     #ai-panel h3 { font-family: 'Inconsolata', monospace; font-size: 11px; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; }
-    .ai-modes { display: flex; gap: 5px; flex-wrap: wrap; }
-    .ai-modes button { font-size: 10px; padding: 4px 8px; }
+    .ai-modes { display: flex; gap: 4px; flex-wrap: wrap; }
+    .ai-modes button { font-size: 10px; padding: 4px 7px; }
     .ai-modes button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-    #ai-prompt-input { background: #141210; border: 1px solid var(--border); color: #d4c9b8; border-radius: 4px; padding: 8px 10px; font-family: 'Lora', serif; font-size: 13px; width: 100%; min-height: 46px; resize: none; outline: none; }
-    #ai-result { background: #141210; border: 1px solid var(--border); border-left: 3px solid var(--accent); color: #d4c9b8; border-radius: 4px; padding: 11px 13px; font-family: 'Lora', serif; font-size: 14px; line-height: 1.75; display: none; white-space: pre-wrap; }
+    #ai-prompt-input { background: #141210; border: 1px solid var(--border); color: #d4c9b8; border-radius: 4px; padding: 8px 10px; font-family: 'Lora', serif; font-size: 13px; width: 100%; min-height: 44px; resize: none; outline: none; }
+    #ai-result { background: #141210; border: 1px solid var(--border); border-left: 3px solid var(--accent); color: #d4c9b8; border-radius: 4px; padding: 10px 12px; font-family: 'Lora', serif; font-size: 14px; line-height: 1.75; display: none; white-space: pre-wrap; }
     #ai-result.visible { display: block; }
     #ai-thinking { color: var(--accent); font-family: 'Inconsolata', monospace; font-size: 11px; display: none; animation: pulse 1.2s infinite; }
     #ai-thinking.visible { display: block; }
 
-    /* ── Overlays ── */
+    /* ── Overlays / Cards ── */
     .overlay { position: fixed; inset: 0; background: var(--overlay); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
     .overlay.hidden { display: none; }
-    .card { background: #211e18; border: 1px solid var(--border); border-radius: 8px; padding: 26px 22px; max-width: 400px; width: 100%; }
+    .card { background: #211e18; border: 1px solid var(--border); border-radius: 8px; padding: 24px 20px; max-width: 400px; width: 100%; }
     .card h2 { font-family: 'Inconsolata', monospace; font-size: 15px; color: var(--accent); margin-bottom: 8px; }
     .card p { color: var(--muted); font-size: 13px; line-height: 1.7; margin-bottom: 14px; }
     .card a { color: var(--green); }
-    .card input { width: 100%; background: #141210; border: 1px solid var(--border); color: #d4c9b8; border-radius: 4px; padding: 10px 12px; font-family: 'Inconsolata', monospace; font-size: 12px; outline: none; margin-bottom: 10px; }
+    .card input, .card select { width: 100%; background: #141210; border: 1px solid var(--border); color: #d4c9b8; border-radius: 4px; padding: 9px 11px; font-family: 'Inconsolata', monospace; font-size: 12px; outline: none; margin-bottom: 10px; }
     .card input:focus { border-color: var(--accent); }
-    .card button { width: 100%; padding: 10px; font-size: 12px; }
+    .card button { width: 100%; padding: 9px; font-size: 12px; }
     .card button:hover, .card button:active { background: var(--accent); border-color: var(--accent); color: #fff; }
     .skip { margin-top: 8px; text-align: center; font-family: 'Inconsolata', monospace; font-size: 11px; color: var(--muted); cursor: pointer; text-decoration: underline; }
     label { display: block; font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
-
     .row { display: flex; gap: 5px; flex-wrap: wrap; }
     .row button { font-size: 10px; padding: 5px 8px; }
 
     @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
 
-    #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(80px); background: #2a2520; color: #d4c9b8; border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 8px 16px; border-radius: 4px; font-family: 'Inconsolata', monospace; font-size: 12px; transition: transform 0.3s ease; pointer-events: none; z-index: 400; white-space: nowrap; }
+    #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(80px); background: #2a2520; color: #d4c9b8; border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 8px 16px; border-radius: 4px; font-family: 'Inconsolata', monospace; font-size: 12px; transition: transform 0.3s ease; pointer-events: none; z-index: 500; white-space: nowrap; }
     #toast.show { transform: translateX(-50%) translateY(0); }
 
     @media (max-width: 480px) {
-      #editor { padding: 26px 16px; font-size: 16px; border-radius: 0; box-shadow: none; }
+      #editor { padding: 24px 16px; font-size: 16px; border-radius: 0; box-shadow: none; }
       #editor-wrap { padding: 0 0 90px; }
     }
   </style>
 </head>
 <body>
 
-<!-- Setup overlay -->
+<!-- Setup -->
 <div id="setup-overlay" class="overlay">
   <div class="card">
     <h2>✦ AI Writer Pro</h2>
-    <p>Get your free Groq API key at <a href="https://console.groq.com" target="_blank">console.groq.com</a> — takes 2 minutes.</p>
+    <p>Get your free Groq API key at <a href="https://console.groq.com" target="_blank">console.groq.com</a></p>
     <label>Groq API Key</label>
     <input type="password" id="setup-key" placeholder="gsk_..." autocomplete="off" />
     <button onclick="saveApiKey()">Start Writing</button>
@@ -264,26 +283,47 @@
   </div>
 </div>
 
-<!-- Settings overlay -->
+<!-- Settings -->
 <div id="settings-overlay" class="overlay hidden">
   <div class="card">
     <h2>⚙ Settings</h2>
     <label>Groq API Key</label>
     <input type="password" id="settings-key" placeholder="gsk_..." autocomplete="off" />
-    <label style="margin-top:10px;">Daily Word Goal</label>
-    <input type="number" id="settings-goal" placeholder="500" min="0" max="100000" style="margin-bottom:14px;" />
-    <div class="row">
+    <label style="margin-top:8px;">Daily Word Goal</label>
+    <input type="number" id="settings-goal" placeholder="500" min="0" />
+    <div class="row" style="margin-top:4px;">
       <button onclick="saveSettings()" style="flex:1">Save</button>
       <button onclick="closeSettings()" class="btn-danger" style="flex:1">Cancel</button>
     </div>
   </div>
 </div>
 
-<!-- App -->
+<!-- Genre Selector -->
+<div id="genre-panel">
+  <div class="card" style="max-width:480px;">
+    <h2 style="margin-bottom:14px;">Select Genre</h2>
+    <div class="genre-grid">
+      <div class="genre-btn" onclick="setGenre('memoir')"><span class="genre-icon">📖</span><div class="genre-name">Memoir</div><div class="genre-desc">Personal truth, emotional depth</div></div>
+      <div class="genre-btn" onclick="setGenre('literary')"><span class="genre-icon">✍️</span><div class="genre-name">Literary Fiction</div><div class="genre-desc">Scene-driven, character-rich</div></div>
+      <div class="genre-btn" onclick="setGenre('romance')"><span class="genre-icon">💕</span><div class="genre-name">Romance</div><div class="genre-desc">Tension, longing, connection</div></div>
+      <div class="genre-btn" onclick="setGenre('thriller')"><span class="genre-icon">⚡</span><div class="genre-name">Thriller/Drama</div><div class="genre-desc">Stakes, pace, urgency</div></div>
+      <div class="genre-btn" onclick="setGenre('poetry')"><span class="genre-icon">🌙</span><div class="genre-name">Poetry</div><div class="genre-desc">Lyrical, imagistic, rhythmic</div></div>
+      <div class="genre-btn" onclick="setGenre('series')"><span class="genre-icon">📚</span><div class="genre-name">Series</div><div class="genre-desc">Multi-book continuity</div></div>
+    </div>
+    <div class="skip" onclick="closeGenrePanel()" style="margin-top:12px;">Keep current genre</div>
+  </div>
+</div>
+
+<!-- Main App -->
 <div id="app">
-  <!-- Document tabs -->
   <div id="tabs-bar">
-    <div id="new-tab-btn" onclick="newTab()" title="New document">＋</div>
+    <div id="new-tab-btn" onclick="newTab()">＋</div>
+  </div>
+
+  <div id="genre-badge" onclick="openGenrePanel()">
+    <span id="genre-icon-display">📖</span>
+    <span id="genre-name-display">Memoir</span>
+    <span>— tap to change</span>
   </div>
 
   <div id="toolbar">
@@ -293,10 +333,14 @@
       <button onclick="saveFile()">Save</button>
       <button onclick="toggleAI()">✦ AI</button>
       <button onclick="toggleChat()" class="btn-green">💬</button>
-      <button onclick="startReadAloud()" class="btn-blue" title="Read aloud">🔊</button>
-      <button onclick="togglePrompts()" class="btn-blue" title="Story prompts">💡</button>
-      <button onclick="toggleMood()" class="btn-purple" title="Mood detector">🎵</button>
-      <button onclick="toggleFocus()" title="Focus">◎</button>
+      <button onclick="startReadAloud()" class="btn-blue">🔊</button>
+      <button onclick="togglePrompts()" class="btn-blue">💡</button>
+      <button onclick="toggleMood()" class="btn-purple">🎵</button>
+      <button onclick="openExpander()" class="btn-gold">📖 Expand</button>
+      <button onclick="openBooks()" class="btn-gold">📚 Books</button>
+      <button onclick="openVoice()" style="border-color:var(--gold);color:var(--gold);">🎤 Voice</button>
+      <button onclick="openBible()" class="btn-blue">📋 Bible</button>
+      <button onclick="toggleFocus()">◎</button>
       <button onclick="openSettings()">⚙</button>
     </div>
   </div>
@@ -313,34 +357,135 @@
 
   <div id="reading-bar">
     <div class="dot"></div>
-    <span id="reading-label">Reading aloud...</span>
-    <button id="stop-reading" onclick="stopReading()">■ Stop</button>
+    <span id="reading-label">Reading...</span>
+    <button onclick="stopReading()" style="margin-left:auto;font-size:10px;">■ Stop</button>
   </div>
 
   <div id="main-area">
     <div id="editor-wrap">
       <textarea id="editor" placeholder="Begin writing. Your words auto-save as you go..." spellcheck="true" autocorrect="on"></textarea>
     </div>
-
-    <!-- AI Chat Panel -->
     <div id="chat-panel">
       <div id="chat-header">
         <span>✦ Writing Coach</span>
-        <button onclick="toggleChat()" style="padding:3px 7px;">✕</button>
+        <button onclick="toggleChat()" style="padding:3px 6px;font-size:10px;">✕</button>
       </div>
       <div id="chat-messages">
-        <div class="msg system-msg">I can see your document. Ask me anything.</div>
+        <div class="msg system-msg">I can see your document and genre. Ask me anything.</div>
       </div>
-      <div id="chat-context-note">📄 Document context: ON</div>
+      <div id="chat-context-note">📄 Document + Genre context: ON</div>
       <div id="chat-input-area">
         <textarea id="chat-input" placeholder="Ask your writing coach..." rows="1"></textarea>
-        <button onclick="sendChat()" class="btn-green" style="padding:7px 10px; align-self:flex-end;">▶</button>
+        <button onclick="sendChat()" class="btn-green" style="padding:6px 9px;align-self:flex-end;">▶</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Quick AI Panel -->
+<!-- Chapter Expander -->
+<div id="expander-panel" class="fs-panel">
+  <div class="fs-header">
+    <h2>📖 Chapter Expander</h2>
+    <button onclick="closeExpander()">✕ Close</button>
+  </div>
+  <div class="fs-body">
+    <div class="expander-controls">
+      <select id="expand-mode">
+        <option value="faithful">Faithful — deeper, longer, same story</option>
+        <option value="creative">Creative — add scenes, dialogue, atmosphere</option>
+      </select>
+      <input type="number" id="expand-target" placeholder="Target words" value="3500" min="500" max="10000" />
+      <button onclick="runExpander()" class="btn-gold">✦ Expand</button>
+    </div>
+    <div id="expand-thinking">✦ expanding your chapter...</div>
+    <div class="expand-stats" id="expand-stats"></div>
+    <label>Paste your chapter here:</label>
+    <textarea id="expand-input" placeholder="Paste your chapter or section here. The AI will expand it in your voice, matching your genre setting..."></textarea>
+    <div id="expand-output"></div>
+    <div class="row" id="expand-actions" style="display:none;">
+      <button onclick="insertExpanded()" class="btn-green">→ Send to Editor</button>
+      <button onclick="copyExpanded()">Copy</button>
+      <button onclick="document.getElementById('expand-output').classList.remove('visible');document.getElementById('expand-actions').style.display='none'">Clear</button>
+    </div>
+  </div>
+</div>
+
+<!-- Book Manager -->
+<div id="books-panel" class="fs-panel">
+  <div class="fs-header">
+    <h2>📚 Book Manager</h2>
+    <button onclick="closeBooks()">✕ Close</button>
+  </div>
+  <div class="fs-body">
+    <div class="new-book-form">
+      <label>New Book</label>
+      <input type="text" id="new-book-title" placeholder="Book title..." />
+      <select id="new-book-genre">
+        <option value="memoir">📖 Memoir</option>
+        <option value="literary">✍️ Literary Fiction</option>
+        <option value="romance">💕 Romance</option>
+        <option value="thriller">⚡ Thriller/Drama</option>
+        <option value="poetry">🌙 Poetry</option>
+        <option value="series">📚 Series</option>
+      </select>
+      <input type="number" id="new-book-target" placeholder="Total word count target (e.g. 80000)" />
+      <textarea id="new-book-desc" placeholder="Brief description or premise..."></textarea>
+      <button onclick="createBook()" class="btn-gold">Create Book</button>
+    </div>
+    <div id="books-list"></div>
+  </div>
+</div>
+
+<!-- Voice Analyzer -->
+<div id="voice-panel" class="fs-panel">
+  <div class="fs-header">
+    <h2>🎤 Voice Analyzer</h2>
+    <button onclick="closeVoice()">✕ Close</button>
+  </div>
+  <div class="fs-body">
+    <div class="voice-locked" id="voice-locked-badge">🔒 Voice locked in — all AI features now write in your voice</div>
+    <p style="color:var(--muted);font-family:'Inconsolata',monospace;font-size:11px;line-height:1.6;margin-bottom:8px;">Paste a passage that sounds most like YOU. The AI will analyze your voice and use it for all expansions and generations.</p>
+    <textarea id="voice-sample" placeholder="Paste your most authentic writing here — a paragraph that sounds exactly like you at your best..."></textarea>
+    <div id="voice-thinking">✦ analyzing your voice...</div>
+    <div id="voice-result">
+      <h4>Your Voice Profile</h4>
+      <p id="voice-profile-text"></p>
+    </div>
+    <div class="row" style="margin-top:4px;">
+      <button onclick="analyzeVoice()" class="btn-gold">✦ Analyze & Lock Voice</button>
+      <button onclick="clearVoice()" class="btn-danger">Clear</button>
+    </div>
+  </div>
+</div>
+
+<!-- Series Bible -->
+<div id="bible-panel" class="fs-panel">
+  <div class="fs-header">
+    <h2>📋 Series Bible</h2>
+    <button onclick="closeBible()">✕ Close</button>
+  </div>
+  <div class="fs-body">
+    <div class="bible-section">
+      <h4>Characters</h4>
+      <textarea id="bible-characters" placeholder="Character names, descriptions, relationships, arcs..."></textarea>
+    </div>
+    <div class="bible-section">
+      <h4>Timeline & Settings</h4>
+      <textarea id="bible-timeline" placeholder="Key dates, locations, world details..."></textarea>
+    </div>
+    <div class="bible-section">
+      <h4>Themes & Motifs</h4>
+      <textarea id="bible-themes" placeholder="Recurring themes, symbols, emotional arcs..."></textarea>
+    </div>
+    <div class="bible-section">
+      <h4>Book Order & Summaries</h4>
+      <textarea id="bible-books" placeholder="Book 1: ...\nBook 2: ...\nBook 3: ..."></textarea>
+    </div>
+    <button onclick="saveBible()" class="btn-blue" style="width:100%;margin-top:4px;">Save Bible</button>
+  </div>
+</div>
+
+<!-- Quick AI -->
 <div id="ai-panel">
   <h3>✦ Quick AI</h3>
   <div class="ai-modes">
@@ -364,7 +509,7 @@
   </div>
 </div>
 
-<!-- Story Prompts Panel -->
+<!-- Story Prompts -->
 <div id="prompts-panel">
   <div id="prompts-header">
     <h3>💡 Story Prompts</h3>
@@ -380,11 +525,11 @@
   <div class="row">
     <button onclick="generatePrompts()" class="btn-blue">✦ Generate 3 Prompts</button>
   </div>
-  <div id="prompts-thinking">✦ generating prompts...</div>
+  <div id="prompts-thinking">✦ generating...</div>
   <div id="prompts-list"></div>
 </div>
 
-<!-- Mood Detector Panel -->
+<!-- Mood Detector -->
 <div id="mood-panel">
   <div id="mood-header">
     <h3>🎵 Mood Detector</h3>
@@ -413,13 +558,23 @@
   let chatHistory = [];
   let isChatOpen = false;
   let currentPromptType = 'memoir';
-  let speechSynth = window.speechSynthesis;
-  let currentUtterance = null;
+  let currentGenre = localStorage.getItem('current_genre') || 'memoir';
+  let voiceProfile = localStorage.getItem('voice_profile') || '';
+  let voiceSample = localStorage.getItem('voice_sample') || '';
+  let books = JSON.parse(localStorage.getItem('author_books') || '[]');
+  let seriesBible = JSON.parse(localStorage.getItem('series_bible') || '{}');
 
-  /* ── Multi-document state ── */
-  let docs = JSON.parse(localStorage.getItem('writer_docs') || 'null') || [
-    { id: Date.now(), name: 'untitled.txt', content: '' }
-  ];
+  const GENRE_CONFIG = {
+    memoir:   { icon:'📖', name:'Memoir',         system:'You are an expert memoir editor. Write in first person, emotionally honest, grounded in specific sensory memory. Voice is intimate, literary, and real. Avoid clichés.' },
+    literary: { icon:'✍️', name:'Literary Fiction', system:'You are a literary fiction editor. Focus on character psychology, scene-building, subtext, and atmosphere. Sentences vary in rhythm. Show don\'t tell.' },
+    romance:  { icon:'💕', name:'Romance',          system:'You are a romance editor. Build emotional tension, chemistry, and longing. Pacing is deliberate. Internal thoughts matter as much as dialogue.' },
+    thriller: { icon:'⚡', name:'Thriller/Drama',   system:'You are a thriller editor. Prioritize pacing, stakes, and urgency. Short punchy sentences in tense moments. Cliffhangers matter. Every scene must move.' },
+    poetry:   { icon:'🌙', name:'Poetry',           system:'You are a poetry editor. Write lyrically, with attention to rhythm, line breaks, and imagery. Less is more. Each word earns its place.' },
+    series:   { icon:'📚', name:'Series',           system:'You are a series continuity editor. Maintain character voices and world consistency across books. Track arcs and callbacks. Every book must work standalone AND as part of the whole.' }
+  };
+
+  /* ── Multi-doc state ── */
+  let docs = JSON.parse(localStorage.getItem('writer_docs') || 'null') || [{ id: Date.now(), name: 'untitled.txt', content: '' }];
   let activeDocId = parseInt(localStorage.getItem('writer_active_doc') || docs[0].id);
 
   /* ── Elements ── */
@@ -428,27 +583,39 @@
   const charCountEl = document.getElementById('char-count');
   const saveStatusEl = document.getElementById('save-status');
   const toast = document.getElementById('toast');
-  const aiPanel = document.getElementById('ai-panel');
-  const aiResult = document.getElementById('ai-result');
-  const aiThinking = document.getElementById('ai-thinking');
-  const insertActions = document.getElementById('insert-actions');
   const chatPanel = document.getElementById('chat-panel');
   const chatMessages = document.getElementById('chat-messages');
   const chatInput = document.getElementById('chat-input');
-  const tabsBar = document.getElementById('tabs-bar');
-  const readingBar = document.getElementById('reading-bar');
-  const readingLabel = document.getElementById('reading-label');
   const goalBarWrap = document.getElementById('goal-bar-wrap');
   const goalBarFill = document.getElementById('goal-bar-fill');
   const goalLabel = document.getElementById('goal-label');
+  const readingBar = document.getElementById('reading-bar');
 
   /* ── Init ── */
   window.addEventListener('load', () => {
     if (apiKey) document.getElementById('setup-overlay').classList.add('hidden');
-    renderTabs();
-    loadActiveDoc();
-    updateGoalBar();
+    renderTabs(); loadActiveDoc(); updateGoalBar(); updateGenreBadge();
+    if (voiceProfile) document.getElementById('voice-locked-badge').classList.add('visible');
+    loadBible();
   });
+
+  /* ── Genre ── */
+  function updateGenreBadge() {
+    const g = GENRE_CONFIG[currentGenre];
+    document.getElementById('genre-icon-display').textContent = g.icon;
+    document.getElementById('genre-name-display').textContent = g.name;
+  }
+  function openGenrePanel() { document.getElementById('genre-panel').classList.add('open'); }
+  function closeGenrePanel() { document.getElementById('genre-panel').classList.remove('open'); }
+  function setGenre(genre) {
+    currentGenre = genre;
+    localStorage.setItem('current_genre', genre);
+    updateGenreBadge();
+    closeGenrePanel();
+    showToast(`Genre: ${GENRE_CONFIG[genre].name} ✓`);
+  }
+  function getGenreSystem() { return GENRE_CONFIG[currentGenre]?.system || GENRE_CONFIG.memoir.system; }
+  function getVoiceContext() { return voiceProfile ? `\n\nAUTHOR VOICE PROFILE: ${voiceProfile}` : ''; }
 
   /* ── Setup ── */
   function saveApiKey() {
@@ -475,355 +642,248 @@
     updateGoalBar(); closeSettings(); showToast('Saved ✓');
   }
 
-  /* ── Tabs / Multi-doc ── */
+  /* ── Tabs ── */
   function renderTabs() {
-    // Remove old tabs (keep new-tab-btn)
     document.querySelectorAll('.tab').forEach(t => t.remove());
     const newBtn = document.getElementById('new-tab-btn');
     docs.forEach(doc => {
       const tab = document.createElement('div');
       tab.className = 'tab' + (doc.id === activeDocId ? ' active' : '');
-      tab.dataset.id = doc.id;
-      tab.innerHTML = `<span>${doc.name}</span><span class="close-tab" onclick="closeTab(event,${doc.id})">✕</span>`;
-      tab.addEventListener('click', (e) => {
-        if (!e.target.classList.contains('close-tab')) switchDoc(doc.id);
-      });
+      tab.innerHTML = `<span class="tab-name">${doc.name}</span><span class="close-tab" onclick="closeTab(event,${doc.id})">✕</span>`;
+      tab.addEventListener('click', e => { if (!e.target.classList.contains('close-tab')) switchDoc(doc.id); });
       tabsBar.insertBefore(tab, newBtn);
     });
   }
-
-  function switchDoc(id) {
-    saveCurrentDoc();
-    activeDocId = id;
-    localStorage.setItem('writer_active_doc', id);
-    loadActiveDoc();
-    renderTabs();
-  }
-
-  function loadActiveDoc() {
-    const doc = docs.find(d => d.id === activeDocId);
-    if (doc) { editor.value = doc.content; updateStats(); saveStatusEl.textContent = '—'; }
-  }
-
+  const tabsBar = document.getElementById('tabs-bar');
+  function switchDoc(id) { saveCurrentDoc(); activeDocId = id; localStorage.setItem('writer_active_doc', id); loadActiveDoc(); renderTabs(); }
+  function loadActiveDoc() { const doc = docs.find(d => d.id === activeDocId); if (doc) { editor.value = doc.content; updateStats(); saveStatusEl.textContent = '—'; } }
   function saveCurrentDoc() {
     const doc = docs.find(d => d.id === activeDocId);
     if (doc) doc.content = editor.value;
     localStorage.setItem('writer_docs', JSON.stringify(docs));
     localStorage.setItem('writer_active_doc', activeDocId);
   }
-
-  function newTab() {
-    saveCurrentDoc();
-    const doc = { id: Date.now(), name: 'untitled.txt', content: '' };
-    docs.push(doc);
-    activeDocId = doc.id;
-    renderTabs();
-    loadActiveDoc();
-    editor.focus();
-  }
-
-  function closeTab(e, id) {
-    e.stopPropagation();
-    if (docs.length === 1) { showToast('Cannot close last document'); return; }
-    if (!confirm('Close this document?')) return;
-    docs = docs.filter(d => d.id !== id);
-    if (activeDocId === id) activeDocId = docs[docs.length - 1].id;
-    localStorage.setItem('writer_docs', JSON.stringify(docs));
-    renderTabs();
-    loadActiveDoc();
-  }
+  function newTab() { saveCurrentDoc(); const doc = { id: Date.now(), name: 'untitled.txt', content: '' }; docs.push(doc); activeDocId = doc.id; renderTabs(); loadActiveDoc(); editor.focus(); }
+  function closeTab(e, id) { e.stopPropagation(); if (docs.length === 1) { showToast('Cannot close last document'); return; } if (!confirm('Close this document?')) return; docs = docs.filter(d => d.id !== id); if (activeDocId === id) activeDocId = docs[docs.length-1].id; localStorage.setItem('writer_docs', JSON.stringify(docs)); renderTabs(); loadActiveDoc(); }
 
   /* ── Stats ── */
-  function getWordCount() {
-    const text = editor.value.trim();
-    return text === '' ? 0 : text.split(/\s+/).length;
-  }
-  function updateStats() {
-    const words = getWordCount();
-    wordCountEl.textContent = `${words} word${words !== 1 ? 's' : ''}`;
-    charCountEl.textContent = `${editor.value.length} chars`;
-    updateGoalBar(words);
-  }
+  function getWordCount() { const t = editor.value.trim(); return t === '' ? 0 : t.split(/\s+/).length; }
+  function updateStats() { const w = getWordCount(); wordCountEl.textContent = `${w} word${w!==1?'s':''}`; charCountEl.textContent = `${editor.value.length} chars`; updateGoalBar(w); }
   function updateGoalBar(words) {
     if (!words) words = getWordCount();
-    if (wordGoal > 0) {
-      goalBarWrap.style.display = 'flex';
-      const pct = Math.min(100, Math.round((words / wordGoal) * 100));
-      goalBarFill.style.width = pct + '%';
-      goalBarFill.style.background = pct >= 100 ? '#c4793a' : 'var(--green)';
-      goalLabel.textContent = `${words}/${wordGoal}`;
-    } else {
-      goalBarWrap.style.display = 'none';
-    }
+    if (wordGoal > 0) { goalBarWrap.style.display = 'flex'; const pct = Math.min(100, Math.round((words/wordGoal)*100)); goalBarFill.style.width = pct+'%'; goalBarFill.style.background = pct>=100?'#c4793a':'var(--green)'; goalLabel.textContent = `${words}/${wordGoal}`; }
+    else { goalBarWrap.style.display = 'none'; }
   }
 
   /* ── Autosave ── */
   editor.addEventListener('input', () => {
-    updateStats();
-    saveStatusEl.textContent = 'editing…'; saveStatusEl.className = '';
+    updateStats(); saveStatusEl.textContent = 'editing…'; saveStatusEl.className = '';
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => { saveCurrentDoc(); saveStatusEl.textContent = 'autosaved'; saveStatusEl.className = 'saved'; }, 1200);
   });
 
   /* ── File ops ── */
-  function newFile() {
-    if (editor.value.trim() && !confirm('Clear this document?')) return;
-    const doc = docs.find(d => d.id === activeDocId);
-    if (doc) { doc.name = 'untitled.txt'; doc.content = ''; }
-    editor.value = ''; updateStats(); renderTabs(); saveStatusEl.textContent = '—';
-    editor.focus();
-  }
-  function openFile() {
-    const input = document.createElement('input');
-    input.type = 'file'; input.accept = '.txt,.md,.text';
-    input.onchange = e => {
-      const file = e.target.files[0]; if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        const doc = docs.find(d => d.id === activeDocId);
-        if (doc) { doc.name = file.name; doc.content = ev.target.result; }
-        editor.value = ev.target.result;
-        saveCurrentDoc(); updateStats(); renderTabs(); editor.focus();
-      };
-      reader.readAsText(file);
-    };
-    input.click();
-  }
-  function saveFile() {
-    const doc = docs.find(d => d.id === activeDocId);
-    const blob = new Blob([editor.value], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = doc ? doc.name : 'document.txt'; a.click();
-    URL.revokeObjectURL(url); showToast('Downloaded ✓');
-  }
+  function newFile() { if (editor.value.trim() && !confirm('Clear this document?')) return; const doc = docs.find(d=>d.id===activeDocId); if(doc){doc.name='untitled.txt';doc.content='';} editor.value=''; updateStats(); renderTabs(); saveStatusEl.textContent='—'; editor.focus(); }
+  function openFile() { const input = document.createElement('input'); input.type='file'; input.accept='.txt,.md,.text'; input.onchange=e=>{ const file=e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=ev=>{ const doc=docs.find(d=>d.id===activeDocId); if(doc){doc.name=file.name;doc.content=ev.target.result;} editor.value=ev.target.result; saveCurrentDoc(); updateStats(); renderTabs(); editor.focus(); }; reader.readAsText(file); }; input.click(); }
+  function saveFile() { const doc=docs.find(d=>d.id===activeDocId); const blob=new Blob([editor.value],{type:'text/plain'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=doc?doc.name:'document.txt'; a.click(); URL.revokeObjectURL(url); showToast('Downloaded ✓'); }
 
-  /* ── Focus mode ── */
-  function toggleFocus() {
-    document.body.classList.toggle('focus-mode');
-    showToast(document.body.classList.contains('focus-mode') ? 'Focus ON — tap to show toolbar' : 'Focus OFF');
-  }
+  /* ── Focus ── */
+  function toggleFocus() { document.body.classList.toggle('focus-mode'); showToast(document.body.classList.contains('focus-mode')?'Focus ON — tap to show toolbar':'Focus OFF'); }
 
   /* ── Read Aloud ── */
+  let currentUtterance = null;
   function startReadAloud() {
-    const text = editor.value.trim();
-    if (!text) { showToast('Nothing to read'); return; }
-    if (!('speechSynthesis' in window)) { showToast('Read aloud not supported on this browser'); return; }
+    const text = editor.value.trim(); if (!text) { showToast('Nothing to read'); return; }
+    if (!('speechSynthesis' in window)) { showToast('Not supported on this browser'); return; }
     stopReading();
-    const selected = getSelectedText();
-    const toRead = selected || text;
+    const selected = getSelectedText(); const toRead = selected || text;
     currentUtterance = new SpeechSynthesisUtterance(toRead);
-    currentUtterance.rate = 0.9;
-    currentUtterance.pitch = 1;
-    currentUtterance.lang = 'en-US';
-    currentUtterance.onstart = () => {
-      readingBar.classList.add('visible');
-      readingLabel.textContent = selected ? 'Reading selection...' : 'Reading document...';
-    };
-    currentUtterance.onend = () => { readingBar.classList.remove('visible'); };
-    currentUtterance.onerror = () => { readingBar.classList.remove('visible'); };
-    speechSynth.speak(currentUtterance);
+    currentUtterance.rate = 0.9; currentUtterance.lang = 'en-US';
+    currentUtterance.onstart = () => { readingBar.classList.add('visible'); document.getElementById('reading-label').textContent = selected ? 'Reading selection...' : 'Reading document...'; };
+    currentUtterance.onend = () => readingBar.classList.remove('visible');
+    currentUtterance.onerror = () => readingBar.classList.remove('visible');
+    window.speechSynthesis.speak(currentUtterance);
   }
-  function stopReading() {
-    speechSynth.cancel();
-    readingBar.classList.remove('visible');
-    currentUtterance = null;
-  }
+  function stopReading() { window.speechSynthesis.cancel(); readingBar.classList.remove('visible'); currentUtterance = null; }
 
-  /* ── Story Prompts ── */
-  function togglePrompts() {
-    const panel = document.getElementById('prompts-panel');
-    panel.classList.toggle('open');
-    if (panel.classList.contains('open') && !apiKey) showToast('Add Groq key in ⚙ Settings');
-  }
-  function setPromptType(btn, type) {
-    document.querySelectorAll('.prompt-type-row button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active'); currentPromptType = type;
-  }
-  async function generatePrompts() {
+  /* ── Chapter Expander ── */
+  function openExpander() { document.getElementById('expander-panel').classList.add('open'); }
+  function closeExpander() { document.getElementById('expander-panel').classList.remove('open'); }
+  async function runExpander() {
     if (!apiKey) { openSettings(); return; }
-    const docContext = editor.value.trim().slice(0, 500);
-    const thinking = document.getElementById('prompts-thinking');
-    const list = document.getElementById('prompts-list');
-    thinking.classList.add('visible'); list.innerHTML = '';
+    const input = document.getElementById('expand-input').value.trim();
+    if (!input) { showToast('Paste your chapter first'); return; }
+    const mode = document.getElementById('expand-mode').value;
+    const target = parseInt(document.getElementById('expand-target').value) || 3500;
+    const inputWords = input.split(/\s+/).length;
+    const thinking = document.getElementById('expand-thinking');
+    const output = document.getElementById('expand-output');
+    const stats = document.getElementById('expand-stats');
+    const actions = document.getElementById('expand-actions');
+    thinking.classList.add('visible'); output.classList.remove('visible'); actions.style.display='none'; stats.classList.remove('visible');
 
-    const typeGuides = {
-      memoir: 'personal memoir — emotional, specific, rooted in real memory',
-      fiction: 'fiction — character-driven, with tension and sensory detail',
-      poetry: 'poetry — lyrical, imagistic, emotionally resonant',
-      journal: 'journal entry — reflective, honest, first person',
-      opening: 'powerful first lines that hook a reader immediately'
+    const modeInstructions = {
+      faithful: `Expand this chapter faithfully. Do NOT invent new plot points. Deepen what is already here: add sensory detail, internal emotion, physical sensation, and texture. Make every existing moment richer and more immersive.`,
+      creative: `Expand this chapter creatively. You may add scenes, dialogue, memory, and atmosphere that serve the existing story. Stay true to the characters and emotional truth. Build the full cinematic version of what is sketched here.`
     };
 
-    const prompt = `Generate exactly 3 ${typeGuides[currentPromptType]} writing prompts.
-${docContext ? `The writer is currently working on: "${docContext}"` : 'No current document context.'}
-Return ONLY a JSON array of 3 strings. No explanation, no markdown, no preamble. Just the raw JSON array.
-Example format: ["Prompt one here","Prompt two here","Prompt three here"]`;
+    const genreSystem = getGenreSystem() + getVoiceContext();
+    const prompt = `${modeInstructions[mode]}
+
+TARGET: Expand to approximately ${target} words (currently ${inputWords} words).
+GENRE: ${GENRE_CONFIG[currentGenre].name}
+
+ORIGINAL CHAPTER:
+${input}
+
+Write the expanded version now. Do not include any preamble or explanation — just the expanded chapter text.`;
 
     try {
-      const res = await groqCall([{ role: 'user', content: prompt }],
-        'You are a creative writing coach. Return only valid JSON arrays, nothing else.', 400);
-      const clean = res.replace(/```json|```/g, '').trim();
-      const prompts = JSON.parse(clean);
-      list.innerHTML = '';
-      prompts.forEach(p => {
-        const card = document.createElement('div');
-        card.className = 'prompt-card';
-        card.textContent = p;
-        card.onclick = () => usePrompt(p);
-        list.appendChild(card);
-      });
-    } catch(e) {
-      list.innerHTML = '<div class="msg system-msg">Could not generate prompts — check API key</div>';
-    }
+      const result = await groqCall([{role:'user',content:prompt}], genreSystem, 4000);
+      output.textContent = result; output.classList.add('visible');
+      const outWords = result.split(/\s+/).length;
+      stats.textContent = `✦ Expanded: ${inputWords} → ${outWords} words (${Math.round(outWords/target*100)}% of target)`;
+      stats.classList.add('visible');
+      actions.style.display = 'flex';
+    } catch(e) { showToast('API error — check Settings'); }
     thinking.classList.remove('visible');
   }
-  function usePrompt(text) {
-    const append = editor.value.trim() ? '\n\n' + text : text;
-    editor.value += append;
-    saveCurrentDoc(); updateStats();
-    togglePrompts(); editor.focus();
-    showToast('Prompt added ✓');
+  function insertExpanded() { const output = document.getElementById('expand-output').textContent; if (!output) return; editor.value += (editor.value.trim() ? '\n\n' : '') + output; saveCurrentDoc(); updateStats(); closeExpander(); editor.focus(); showToast('Chapter inserted ✓'); }
+  function copyExpanded() { navigator.clipboard.writeText(document.getElementById('expand-output').textContent).then(()=>showToast('Copied ✓')); }
+
+  /* ── Book Manager ── */
+  function openBooks() { renderBooks(); document.getElementById('books-panel').classList.add('open'); }
+  function closeBooks() { document.getElementById('books-panel').classList.remove('open'); }
+  function createBook() {
+    const title = document.getElementById('new-book-title').value.trim();
+    if (!title) { showToast('Enter a book title'); return; }
+    const book = { id: Date.now(), title, genre: document.getElementById('new-book-genre').value, target: parseInt(document.getElementById('new-book-target').value)||80000, desc: document.getElementById('new-book-desc').value.trim(), words: 0 };
+    books.push(book); localStorage.setItem('author_books', JSON.stringify(books));
+    document.getElementById('new-book-title').value=''; document.getElementById('new-book-desc').value='';
+    renderBooks(); showToast(`"${title}" created ✓`);
+  }
+  function renderBooks() {
+    const list = document.getElementById('books-list'); list.innerHTML = '';
+    if (books.length === 0) { list.innerHTML = '<div class="msg system-msg" style="margin-top:12px;">No books yet — create your first one above</div>'; return; }
+    books.forEach(book => {
+      const pct = Math.min(100, Math.round((book.words/book.target)*100));
+      const g = GENRE_CONFIG[book.genre] || GENRE_CONFIG.memoir;
+      const div = document.createElement('div');
+      div.className = 'book-card';
+      div.innerHTML = `<h3>${g.icon} ${book.title}</h3><div class="book-meta"><span class="book-genre">${g.name}</span><span>${book.words.toLocaleString()} / ${book.target.toLocaleString()} words</span></div>${book.desc?`<div style="color:var(--muted);font-size:11px;margin-top:4px;font-family:'Inconsolata',monospace;">${book.desc}</div>`:''}<div class="book-progress"><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></div>`;
+      div.onclick = () => { setGenre(book.genre); closeBooks(); showToast(`Switched to: ${book.title}`); };
+      list.appendChild(div);
+    });
   }
 
-  /* ── Mood Detector ── */
-  function toggleMood() {
-    const panel = document.getElementById('mood-panel');
-    panel.classList.toggle('open');
-    if (panel.classList.contains('open') && !apiKey) showToast('Add Groq key in ⚙ Settings');
-  }
-  async function analyzeMood() {
+  /* ── Voice Analyzer ── */
+  function openVoice() { document.getElementById('voice-panel').classList.add('open'); if(voiceSample) document.getElementById('voice-sample').value=voiceSample; if(voiceProfile){ document.getElementById('voice-profile-text').textContent=voiceProfile; document.getElementById('voice-result').classList.add('visible'); document.getElementById('voice-locked-badge').classList.add('visible'); } }
+  function closeVoice() { document.getElementById('voice-panel').classList.remove('open'); }
+  async function analyzeVoice() {
     if (!apiKey) { openSettings(); return; }
-    const text = editor.value.trim();
-    if (!text) { showToast('Write something first'); return; }
-    const thinking = document.getElementById('mood-thinking');
-    const result = document.getElementById('mood-result');
-    const sunoBox = document.getElementById('suno-suggestion');
-    const sunoText = document.getElementById('suno-text');
-    thinking.classList.add('visible');
-    result.classList.remove('visible');
-    sunoBox.classList.remove('visible');
-
-    const prompt = `Analyze the emotional mood and tone of this writing. Be specific and poetic in your analysis.
-Then generate a Suno AI music prompt that would pair perfectly with this writing.
-
-Writing:
-"${text.slice(0, 1500)}"
-
-Respond ONLY with valid JSON in this exact format:
-{"mood":"2-3 sentence emotional analysis of the writing's mood and tone","energy":"one word: low/medium/high","suno":"a detailed Suno AI prompt describing the perfect musical accompaniment — include genre, tempo, instruments, mood descriptors"}`;
-
+    const sample = document.getElementById('voice-sample').value.trim();
+    if (sample.length < 100) { showToast('Paste more text — at least a paragraph'); return; }
+    const thinking = document.getElementById('voice-thinking');
+    const result = document.getElementById('voice-result');
+    thinking.classList.add('visible'); result.classList.remove('visible');
+    const prompt = `Analyze this author's writing voice in detail. Describe: sentence rhythm and length patterns, vocabulary level and word choices, emotional tone, use of metaphor and imagery, pacing, POV characteristics, and any distinctive stylistic signatures. Be specific — this profile will be used to match AI output to their exact voice.\n\nSAMPLE:\n${sample}`;
     try {
-      const res = await groqCall([{ role: 'user', content: prompt }],
-        'You are a literary and musical analyst. Return only valid JSON, nothing else.', 400);
-      const clean = res.replace(/```json|```/g, '').trim();
-      const data = JSON.parse(clean);
-      result.textContent = data.mood;
+      const profile = await groqCall([{role:'user',content:prompt}], 'You are a literary voice analyst. Be specific and detailed.', 600);
+      voiceProfile = profile; voiceSample = sample;
+      localStorage.setItem('voice_profile', profile); localStorage.setItem('voice_sample', sample);
+      document.getElementById('voice-profile-text').textContent = profile;
       result.classList.add('visible');
-      sunoText.textContent = data.suno;
-      sunoBox.classList.add('visible');
-    } catch(e) {
-      result.textContent = 'Could not analyze mood — check API key';
-      result.classList.add('visible');
-    }
+      document.getElementById('voice-locked-badge').classList.add('visible');
+      showToast('Voice locked in ✓ All AI now writes like you');
+    } catch(e) { showToast('API error — check Settings'); }
     thinking.classList.remove('visible');
   }
+  function clearVoice() { voiceProfile=''; voiceSample=''; localStorage.removeItem('voice_profile'); localStorage.removeItem('voice_sample'); document.getElementById('voice-sample').value=''; document.getElementById('voice-result').classList.remove('visible'); document.getElementById('voice-locked-badge').classList.remove('visible'); showToast('Voice profile cleared'); }
+
+  /* ── Series Bible ── */
+  function openBible() { document.getElementById('bible-panel').classList.add('open'); }
+  function closeBible() { document.getElementById('bible-panel').classList.remove('open'); }
+  function loadBible() { if(seriesBible.characters) document.getElementById('bible-characters').value=seriesBible.characters; if(seriesBible.timeline) document.getElementById('bible-timeline').value=seriesBible.timeline; if(seriesBible.themes) document.getElementById('bible-themes').value=seriesBible.themes; if(seriesBible.books) document.getElementById('bible-books').value=seriesBible.books; }
+  function saveBible() { seriesBible = { characters: document.getElementById('bible-characters').value, timeline: document.getElementById('bible-timeline').value, themes: document.getElementById('bible-themes').value, books: document.getElementById('bible-books').value }; localStorage.setItem('series_bible', JSON.stringify(seriesBible)); showToast('Series Bible saved ✓'); }
+  function getBibleContext() { if (!seriesBible.characters && !seriesBible.timeline) return ''; return `\n\nSERIES BIBLE:\nCharacters: ${seriesBible.characters||'none'}\nTimeline: ${seriesBible.timeline||'none'}\nThemes: ${seriesBible.themes||'none'}`; }
 
   /* ── Quick AI ── */
-  function toggleAI() { aiPanel.classList.toggle('open'); if (!apiKey) showToast('Add Groq key in ⚙ Settings'); }
-  function setMode(btn, mode) {
-    document.querySelectorAll('.ai-modes button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active'); currentMode = mode;
-  }
+  function toggleAI() { document.getElementById('ai-panel').classList.toggle('open'); if (!apiKey) showToast('Add Groq key in ⚙ Settings'); }
+  function setMode(btn, mode) { document.querySelectorAll('.ai-modes button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); currentMode=mode; }
   async function runAI() {
     if (!apiKey) { openSettings(); return; }
-    const text = editor.value;
-    const extra = document.getElementById('ai-prompt-input').value.trim();
-    const selected = getSelectedText();
+    const text = editor.value; const extra = document.getElementById('ai-prompt-input').value.trim(); const selected = getSelectedText();
     if (!text.trim() && currentMode !== 'custom') { showToast('Write something first'); return; }
-    const prompts = {
-      continue: `Continue this writing naturally. Match the voice exactly. Write the next 2-3 paragraphs. ${extra}\n\nText:\n${text.slice(-1500)}`,
-      rewrite: `Rewrite this passage. Improve flow while preserving voice. ${extra}\n\nPassage:\n${selected || text.slice(-800)}`,
-      expand: `Expand this passage with more depth and texture. ${extra}\n\nPassage:\n${selected || text.slice(-800)}`,
-      summarize: `Summarize the following into a clear paragraph. ${extra}\n\nText:\n${text.slice(-2000)}`,
-      custom: extra || ('Help me improve this:\n' + text.slice(-1000))
-    };
-    aiThinking.classList.add('visible'); aiResult.classList.remove('visible');
-    insertActions.style.display = 'none'; lastResult = '';
-    try {
-      lastResult = await groqCall([{ role: 'user', content: prompts[currentMode] }],
-        'You are an expert writing assistant. Respond with only the requested writing — no preamble, no explanation.');
-      aiResult.textContent = lastResult; aiResult.classList.add('visible');
-      insertActions.style.display = 'flex';
-    } catch(e) { showToast('API error — check Settings'); }
+    const prompts = { continue:`Continue this writing naturally. Match the voice exactly. Write the next 2-3 paragraphs. ${extra}\n\nText:\n${text.slice(-1500)}`, rewrite:`Rewrite this passage. Improve flow while preserving voice. ${extra}\n\nPassage:\n${selected||text.slice(-800)}`, expand:`Expand this with more depth and texture. ${extra}\n\nPassage:\n${selected||text.slice(-800)}`, summarize:`Summarize into a clear paragraph. ${extra}\n\nText:\n${text.slice(-2000)}`, custom:extra||('Help me improve this:\n'+text.slice(-1000)) };
+    const aiThinking = document.getElementById('ai-thinking'); const aiResult = document.getElementById('ai-result');
+    aiThinking.classList.add('visible'); aiResult.classList.remove('visible'); insertActions.style.display='none'; lastResult='';
+    try { lastResult = await groqCall([{role:'user',content:prompts[currentMode]}], getGenreSystem()+getVoiceContext()); aiResult.textContent=lastResult; aiResult.classList.add('visible'); insertActions.style.display='flex'; }
+    catch(e) { showToast('API error — check Settings'); }
     aiThinking.classList.remove('visible');
   }
-  function getSelectedText() { const s = editor.selectionStart, e = editor.selectionEnd; return s !== e ? editor.value.slice(s, e) : ''; }
-  function insertResult(mode) {
-    if (!lastResult) return;
-    if (mode === 'append') { editor.value += '\n\n' + lastResult; }
-    else { const s = editor.selectionStart, e = editor.selectionEnd; editor.value = s !== e ? editor.value.slice(0,s) + lastResult + editor.value.slice(e) : editor.value + '\n\n' + lastResult; }
-    updateStats(); saveCurrentDoc(); toggleAI(); editor.focus(); showToast('Inserted ✓');
-  }
-  function copyResult() { navigator.clipboard.writeText(lastResult).then(() => showToast('Copied ✓')); }
+  const insertActions = document.getElementById('insert-actions');
+  function getSelectedText() { const s=editor.selectionStart,e=editor.selectionEnd; return s!==e?editor.value.slice(s,e):''; }
+  function insertResult(mode) { if(!lastResult)return; if(mode==='append'){editor.value+='\n\n'+lastResult;}else{const s=editor.selectionStart,e=editor.selectionEnd;editor.value=s!==e?editor.value.slice(0,s)+lastResult+editor.value.slice(e):editor.value+'\n\n'+lastResult;} updateStats(); saveCurrentDoc(); toggleAI(); editor.focus(); showToast('Inserted ✓'); }
+  function copyResult() { navigator.clipboard.writeText(lastResult).then(()=>showToast('Copied ✓')); }
 
   /* ── Chat ── */
-  function toggleChat() {
-    isChatOpen = !isChatOpen;
-    chatPanel.classList.toggle('open', isChatOpen);
-    if (isChatOpen && !apiKey) showToast('Add Groq key in ⚙ Settings');
-    if (isChatOpen) chatInput.focus();
-  }
-  chatInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
+  function toggleChat() { isChatOpen=!isChatOpen; chatPanel.classList.toggle('open',isChatOpen); if(isChatOpen&&!apiKey)showToast('Add Groq key in ⚙ Settings'); if(isChatOpen)chatInput.focus(); }
+  chatInput.addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();} });
   async function sendChat() {
-    const msg = chatInput.value.trim();
-    if (!msg || !apiKey) { if (!apiKey) openSettings(); return; }
-    chatInput.value = '';
-    appendChatMsg('user', msg);
-    const docContext = editor.value.trim() ? `The user's current document:\n---\n${editor.value.slice(0,3000)}\n---\nReference their actual words when helpful.` : 'No document written yet.';
-    const systemPrompt = `You are an expert writing coach and creative collaborator. ${docContext}\nBe conversational, specific, and genuinely helpful.`;
-    chatHistory.push({ role: 'user', content: msg });
-    const thinking = appendChatMsg('ai', '✦ thinking...', true);
-    try {
-      const reply = await groqCall(chatHistory, systemPrompt, 700);
-      thinking.remove(); chatHistory.push({ role: 'assistant', content: reply });
-      appendChatMsg('ai', reply);
-    } catch(e) { thinking.remove(); appendChatMsg('ai', 'Connection error. Check your API key.'); }
+    const msg=chatInput.value.trim(); if(!msg||!apiKey){if(!apiKey)openSettings();return;}
+    chatInput.value=''; appendChatMsg('user',msg);
+    const docContext=editor.value.trim()?`Current document:\n---\n${editor.value.slice(0,3000)}\n---`:'No document yet.';
+    const systemPrompt=`You are an expert writing coach. Genre: ${GENRE_CONFIG[currentGenre].name}. ${getGenreSystem()}${getVoiceContext()}${getBibleContext()}\n\n${docContext}\n\nBe specific, warm, and direct.`;
+    chatHistory.push({role:'user',content:msg});
+    const thinking=appendChatMsg('ai','✦ thinking...',true);
+    try { const reply=await groqCall(chatHistory,systemPrompt,700); thinking.remove(); chatHistory.push({role:'assistant',content:reply}); appendChatMsg('ai',reply); }
+    catch(e) { thinking.remove(); appendChatMsg('ai','Connection error. Check your API key.'); }
   }
-  function appendChatMsg(role, text, isThinking = false) {
-    const div = document.createElement('div');
-    div.className = `msg ${role}${isThinking ? ' thinking' : ''}`;
-    div.textContent = text;
-    chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-    return div;
+  function appendChatMsg(role,text,isThinking=false) { const div=document.createElement('div'); div.className=`msg ${role}${isThinking?' thinking':''}`; div.textContent=text; chatMessages.appendChild(div); chatMessages.scrollTop=chatMessages.scrollHeight; return div; }
+
+  /* ── Story Prompts ── */
+  function togglePrompts() { document.getElementById('prompts-panel').classList.toggle('open'); if(!apiKey)showToast('Add Groq key in ⚙ Settings'); }
+  function setPromptType(btn,type) { document.querySelectorAll('.prompt-type-row button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); currentPromptType=type; }
+  async function generatePrompts() {
+    if(!apiKey){openSettings();return;}
+    const docContext=editor.value.trim().slice(0,400);
+    const thinking=document.getElementById('prompts-thinking'); const list=document.getElementById('prompts-list');
+    thinking.classList.add('visible'); list.innerHTML='';
+    const prompt=`Generate exactly 3 ${currentPromptType} writing prompts.${docContext?` Writer is working on: "${docContext}"`:''}${getVoiceContext()}\nReturn ONLY a JSON array of 3 strings. No explanation. No markdown. Raw JSON only.\nExample: ["Prompt one","Prompt two","Prompt three"]`;
+    try { const res=await groqCall([{role:'user',content:prompt}],'Return only valid JSON arrays, nothing else.',400); const clean=res.replace(/```json|```/g,'').trim(); const prompts=JSON.parse(clean); list.innerHTML=''; prompts.forEach(p=>{const card=document.createElement('div');card.className='prompt-card';card.textContent=p;card.onclick=()=>usePrompt(p);list.appendChild(card);}); }
+    catch(e){list.innerHTML='<div class="msg system-msg">Error generating prompts</div>';}
+    thinking.classList.remove('visible');
+  }
+  function usePrompt(text){editor.value+=(editor.value.trim()?'\n\n':'')+text;saveCurrentDoc();updateStats();togglePrompts();editor.focus();showToast('Prompt added ✓');}
+
+  /* ── Mood Detector ── */
+  function toggleMood(){document.getElementById('mood-panel').classList.toggle('open');if(!apiKey)showToast('Add Groq key in ⚙ Settings');}
+  async function analyzeMood(){
+    if(!apiKey){openSettings();return;}
+    const text=editor.value.trim();if(!text){showToast('Write something first');return;}
+    const thinking=document.getElementById('mood-thinking');const result=document.getElementById('mood-result');const sunoBox=document.getElementById('suno-suggestion');const sunoText=document.getElementById('suno-text');
+    thinking.classList.add('visible');result.classList.remove('visible');sunoBox.classList.remove('visible');
+    const prompt=`Analyze the emotional mood of this writing. Return ONLY valid JSON:\n{"mood":"2-3 sentence emotional analysis","suno":"detailed Suno AI music prompt matching this writing's mood"}\n\nWriting:\n"${text.slice(0,1500)}"`;
+    try{const res=await groqCall([{role:'user',content:prompt}],'Return only valid JSON, nothing else.',400);const clean=res.replace(/```json|```/g,'').trim();const data=JSON.parse(clean);result.textContent=data.mood;result.classList.add('visible');sunoText.textContent=data.suno;sunoBox.classList.add('visible');}
+    catch(e){result.textContent='Could not analyze — check API key';result.classList.add('visible');}
+    thinking.classList.remove('visible');
   }
 
-  /* ── Groq call ── */
-  async function groqCall(messages, systemPrompt, maxTokens = 600) {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile', max_tokens: maxTokens, temperature: 0.75,
-        messages: systemPrompt ? [{ role: 'system', content: systemPrompt }, ...messages] : messages
-      })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    return data.choices[0].message.content.trim();
+  /* ── Groq ── */
+  async function groqCall(messages,systemPrompt,maxTokens=600){
+    const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Authorization':`Bearer ${apiKey}`,'Content-Type':'application/json'},body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:maxTokens,temperature:0.75,messages:systemPrompt?[{role:'system',content:systemPrompt},...messages]:messages})});
+    const data=await res.json();if(data.error)throw new Error(data.error.message);return data.choices[0].message.content.trim();
   }
 
   /* ── Toast ── */
-  function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2400); }
+  function showToast(msg){toast.textContent=msg;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2400);}
 
-  /* ── Keyboard shortcuts ── */
-  document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveFile(); }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'o') { e.preventDefault(); openFile(); }
-    if ((e.ctrlKey || e.metaKey) && e.key === 't') { e.preventDefault(); newTab(); }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'i') { e.preventDefault(); toggleAI(); }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); toggleChat(); }
+  /* ── Keyboard ── */
+  document.addEventListener('keydown',e=>{
+    if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveFile();}
+    if((e.ctrlKey||e.metaKey)&&e.key==='o'){e.preventDefault();openFile();}
+    if((e.ctrlKey||e.metaKey)&&e.key==='t'){e.preventDefault();newTab();}
+    if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();toggleChat();}
   });
 </script>
 </body>
