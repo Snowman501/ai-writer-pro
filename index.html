@@ -329,6 +329,25 @@
     .gs-genre-label { font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--muted); display: flex; justify-content: space-between; margin-bottom: 2px; }
     .gs-genre-track { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
     .gs-genre-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.5s; }
+    /* Skills Browser */
+    #gs-skills-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 250; display: none; flex-direction: column; }
+    #gs-skills-overlay.open { display: flex; }
+    .gs-skills-hdr { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: var(--toolbar); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .gs-skills-hdr h2 { font-family: 'Inconsolata', monospace; font-size: 13px; color: var(--green); letter-spacing: 0.06em; flex-shrink: 0; margin: 0; }
+    #gs-skills-search { flex: 1; background: var(--card-bg); border: 1px solid var(--border); color: #d4c9b8; border-radius: 4px; padding: 6px 10px; font-family: 'Inconsolata', monospace; font-size: 12px; outline: none; }
+    #gs-skills-search:focus { border-color: var(--green); }
+    #gs-skills-search::placeholder { color: var(--muted); }
+    .gs-cat-tabs { display: flex; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--border); flex-shrink: 0; background: #13110c; }
+    .gs-cat-tabs::-webkit-scrollbar { display: none; }
+    .gs-cat-tab { padding: 8px 12px; font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--muted); cursor: pointer; white-space: nowrap; background: transparent; border: none; border-bottom: 2px solid transparent; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.04em; }
+    .gs-cat-tab:hover { color: #d4c9b8; background: transparent; }
+    .gs-cat-tab.active { color: var(--green); border-bottom-color: var(--green); background: transparent; }
+    #gs-skills-grid { flex: 1; overflow-y: auto; padding: 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; align-content: start; }
+    .gs-skill-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 12px; cursor: pointer; transition: all 0.15s; text-align: center; -webkit-tap-highlight-color: transparent; }
+    .gs-skill-card:hover, .gs-skill-card:active { border-color: var(--green); background: #141e14; box-shadow: 0 0 12px rgba(122,158,126,0.12); }
+    .gs-skill-icon { font-size: 26px; margin-bottom: 7px; display: block; }
+    .gs-skill-name { font-family: 'Inconsolata', monospace; font-size: 11px; color: #d4c9b8; margin-bottom: 4px; font-weight: bold; }
+    .gs-skill-desc { font-family: 'Inconsolata', monospace; font-size: 9px; color: var(--muted); line-height: 1.5; }
     /* Upgrade overlay */
     #gs-upgrade-overlay { position: fixed; inset: 0; background: var(--overlay); display: none; align-items: center; justify-content: center; z-index: 400; padding: 16px; }
     #gs-upgrade-overlay.open { display: flex; }
@@ -676,6 +695,17 @@
     </div>
     <div class="gs-upgrade-note">Have a Groq API key? <a onclick="openSettings();closeGSUpgrade();">Enter it in ⚙ Settings</a> for unlimited access &nbsp;·&nbsp; <a onclick="closeGSUpgrade();">Maybe later</a></div>
   </div>
+</div>
+
+<!-- Game Skills Browser -->
+<div id="gs-skills-overlay">
+  <div class="gs-skills-hdr">
+    <h2>🎮 Game Skills Library</h2>
+    <input type="text" id="gs-skills-search" placeholder="Search 40+ games..." oninput="gsFilterSkills(this.value)" />
+    <button onclick="closeGSSkills()" style="flex-shrink:0;">✕ Close</button>
+  </div>
+  <div class="gs-cat-tabs" id="gs-cat-tabs"></div>
+  <div id="gs-skills-grid"></div>
 </div>
 
 <!-- Quick AI -->
@@ -1215,6 +1245,141 @@ Return ONLY the polished chapter. No preamble, no notes, no explanation.`;
   function showToast(msg){toast.textContent=msg;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2400);}
 
   /* ── GameForge AI Studio ── */
+  /* ── Game Skills Library ── */
+  const GS_SKILLS = [
+    { cat: '🕹️ Arcade Classics', games: [
+      { icon:'🐍', name:'Snake',          desc:'Growing snake, pellets, levels',     prompt:'HD neon Snake: canvas full-screen, growing snake, food pellets, score, speed increases per level, wall-wrap option, particle burst on eat, game-over on self-collision.' },
+      { icon:'🏓', name:'Pong',           desc:'Ball, paddle, smart AI',             prompt:'HD Pong vs smart AI: neon ball with glow trail, adaptive AI difficulty, W/S keys, wall bounces, score to 7, screen-flash on score, smooth paddle movement.' },
+      { icon:'🧱', name:'Breakout',       desc:'Ball, paddle, brick layers + power-ups', prompt:'HD Breakout/Arkanoid: colorful bricks in 8 rows with different HP, physics ball with spin, power-ups drop on brick hit (wide paddle, multi-ball, laser, fireball), lives, score, particles on every break.' },
+      { icon:'👾', name:'Space Invaders', desc:'March the alien fleet, shoot back',  prompt:'HD Space Invaders: 5 alien types in formation, aliens march and bomb, 4 destructible shield bunkers, UFO bonus, score per alien type, 3 lives, particle explosions, wave difficulty increase.' },
+      { icon:'🪐', name:'Asteroids',      desc:'Rotate, thrust, split rocks',        prompt:'HD Asteroids: rotate with arrow keys, thrust with up, shoot with space. Rocks split large→medium→small. Hyperspace warp. Neon wireframe aesthetic with glow. Lives, score, progressive waves.' },
+      { icon:'🟡', name:'Pac-Man',        desc:'Eat dots, dodge ghost AI',           prompt:'HD Pac-Man clone: full maze with dots and power pellets, 4 ghosts with chase/scatter/frightened AI states, bonus fruit, animated mouth, score, lives, eat-ghost chain scoring, win on clear.' },
+      { icon:'🐸', name:'Frogger',        desc:'Cross traffic and river',            prompt:'HD Frogger: 5 traffic lanes (cars/trucks/buses), 5 river lanes (logs/turtles/crocs), 5 home pads to fill, lives, timer per level, score bonus for speed, level progression.' },
+      { icon:'🚀', name:'Galaga',         desc:'Formation aliens that dive-bomb',    prompt:'HD Galaga: alien formations that swoop and dive-bomb. Capture and rescue mechanic for dual-ship firepower. Boss alien on wave 5+. Score multiplier. HD explosions and dive trails.' },
+    ]},
+    { cat: '🧩 Puzzle Games', games: [
+      { icon:'🟦', name:'Tetris',         desc:'Stack tetrominoes, clear lines',     prompt:'HD Tetris: all 7 tetrominoes, ghost piece showing landing, wall-kick rotation, T-spin detection, hold piece, next-piece preview, score system (single/double/triple/tetris), levels 1-20, increasing gravity.' },
+      { icon:'🔢', name:'2048',           desc:'Merge tiles to reach 2048',          prompt:'HD 2048: 4x4 grid, arrow keys or swipe to merge, smooth animated tile slide, new tile spawn animation, score + best score, undo button, win screen at 2048, continue playing option.' },
+      { icon:'🔤', name:'Wordle',         desc:'Guess the secret 5-letter word',     prompt:'HD Wordle: 5-letter words, 6 attempts, green/yellow/gray tile feedback, on-screen keyboard with color state, 300+ word dictionary, daily streak tracking, share result grid.' },
+      { icon:'💣', name:'Minesweeper',    desc:'Reveal cells, flag mines',           prompt:'HD Minesweeper: 3 difficulty levels (9×9 beginner / 16×16 intermediate / 30×16 expert), right-click to flag, auto-reveal empty areas, first-click always safe, timer, mine counter, smiley face.' },
+      { icon:'📦', name:'Sliding Puzzle', desc:'Slide tiles to correct order',       prompt:'HD 15-Puzzle: 4×4 sliding tiles, scramble with animation, move counter, timer, smooth tile slide animation, win detection, difficulty selector (3×3/4×4/5×5), optional numbered or image tiles.' },
+      { icon:'🃏', name:'Memory Match',   desc:'Flip cards, find all pairs',         prompt:'HD Memory card matching: 4×4 emoji grid, smooth 3D card-flip animation, match glow effect, move counter, timer, difficulty (4×4/6×6), win celebration with confetti particles.' },
+      { icon:'🔢', name:'Sudoku',         desc:'Fill the 9×9 logic grid',            prompt:'HD Sudoku: 9×9 grid, 3 difficulty levels, auto-generated valid puzzles with unique solutions, selected cell + related cells highlighted, mistake counter, timer, hint system, pencil marks.' },
+      { icon:'🎯', name:'Color Mix',      desc:'Match RGB colors precisely',         prompt:'HD Color Match: RGB sliders to mix a color matching the target swatch, percentage accuracy scored, 10 progressive rounds, timer per round, leaderboard, satisfying match-glow feedback.' },
+    ]},
+    { cat: '🏃 Platformers & Runners', games: [
+      { icon:'🦸', name:'Platformer',     desc:'Run, jump, collect, defeat enemies', prompt:'HD side-scrolling platformer: run/jump/double-jump, moving and crumbling platforms, spike traps, bouncy springs, collectible coins, patrolling enemies with knock-back, parallax multi-layer background, 3 lives, goal door.' },
+      { icon:'🐦', name:'Flappy Bird',    desc:'Tap to flap through pipe gaps',      prompt:'HD Flappy Bird: tap/click/space to flap, procedural pipes with random gap height, gravity physics, parallax cloud background, score counter, best score, squash-and-stretch bird animation, death spin.' },
+      { icon:'🏃', name:'Endless Runner', desc:'Jump and duck over obstacles',       prompt:'HD Endless Runner: auto-running character, jump (space/tap), duck (down), randomized obstacles (barriers/pits/low-hangers), coin rows, parallax background layers, speed increases every 500m, high score.' },
+      { icon:'🪂', name:'Doodle Jump',    desc:'Jump up on rising platforms',        prompt:'HD Doodle Jump: character auto-jumps, left/right arrow keys to move, platforms scroll down as you climb. Spring pads, moving platforms, breaking platforms, enemies, jetpack bonus, score = max height.' },
+      { icon:'⛷️', name:'Ski Slalom',     desc:'Weave through gates down the slope', prompt:'HD Ski Slalom top-down: character slides downward, player steers left/right, gates to pass through for time bonus, trees and rocks to avoid, 3 course difficulties, best time per course.' },
+    ]},
+    { cat: '🚀 Shooters & Action', games: [
+      { icon:'🛸', name:'Space Shooter',  desc:'Free-roam bullet-hell combat',       prompt:'HD top-down space shooter: WASD move, mouse aim and shoot, auto-fire hold. Enemy formations that dodge, exploding asteroids, boss every 10 waves with phase transitions, power-ups (spread/laser/shield), screen-shake on hit.' },
+      { icon:'🏰', name:'Tower Defense',  desc:'Place towers, stop enemy waves',     prompt:'HD Tower Defense: grid path, 4 tower types (rapid/sniper/AOE/slow), upgrade each 3 levels, gold economy, 20+ waves, 5 enemy types (fast/tank/swarm/armored/boss), HP bars, wave preview, game-over at base.' },
+      { icon:'🧟', name:'Zombie Survival', desc:'Survive endless zombie hordes',     prompt:'HD top-down zombie survival: WASD move, mouse aim and click to shoot, reload (R). Zombie hordes from all directions, 4 weapon pickups, health bar, ammo counter, wave announcements, XP and level-ups, night atmosphere.' },
+      { icon:'🔫', name:'Dual-Stick',     desc:'Move and aim independently',        prompt:'HD dual-stick arena shooter: WASD move, mouse/arrow aim + shoot. Endless enemy waves with 5 types, weapon crates (shotgun/laser/rocket), XP orbs and level-ups, perks on level-up, arena walls, muzzle-flash effects.' },
+    ]},
+    { cat: '♟️ Strategy & Board', games: [
+      { icon:'♟️', name:'Chess',          desc:'Full chess vs AI opponent',          prompt:'HD Chess: complete rules (castling, en passant, pawn promotion, 50-move draw), minimax AI with 3 depth levels (easy/medium/hard), legal-move highlight, captured pieces sidebar, undo, game history PGN display.' },
+      { icon:'🔴', name:'Connect 4',      desc:'Drop discs, four in a row',          prompt:'HD Connect 4: 7×6 grid, animated disc drop with bounce, win detection (horiz/vert/diag) with line highlight, 2-player and vs-AI mode (minimax), score tracker, hover preview, win celebration.' },
+      { icon:'⭕', name:'Tic-Tac-Toe',    desc:'X\'s and O\'s vs unbeatable AI',    prompt:'HD Tic-Tac-Toe: 3×3 grid, human vs unbeatable minimax AI, animated win line draw, score tracking, game history, difficulty toggle (easy random / hard minimax).' },
+      { icon:'🎲', name:'Yahtzee',        desc:'Roll dice, fill 13 categories',      prompt:'HD Yahtzee: 5 animated 3D-style dice, 3 rolls per turn, click dice to hold, 13 scoring categories with auto-score preview, two-player pass-and-play, grand total, bonus tracking.' },
+      { icon:'🎯', name:'Battleship',     desc:'Sink the enemy fleet',               prompt:'HD Battleship: 10×10 grids, 5 ships to place (drag-and-drop or click), AI places ships randomly, hit/miss feedback, ship-sunk announcements, shot tracker, AI targets adjacent cells on hit.' },
+    ]},
+    { cat: '🃏 Card Games', games: [
+      { icon:'🂡', name:'Blackjack',       desc:'Beat the dealer, don\'t bust at 21', prompt:'HD Blackjack casino: animated card deal with flip, hit/stand/double/split actions, dealer follows house rules (stand on 17), chip betting with stack visuals, balance tracker, deck of 6 shuffled shoes.' },
+      { icon:'🂾', name:'Solitaire',       desc:'Classic Klondike patience',          prompt:'HD Klondike Solitaire: drag-and-drop or click-to-move cards, smooth fan and flip animations, auto-complete detection, undo stack, 1-card or 3-card draw modes, timer, score (time bonus), win fireworks.' },
+      { icon:'🃏', name:'War',             desc:'Highest card wins the pile',         prompt:'HD Card War: full 52-card deck split evenly, animated flip battle, war mechanic on ties (3 face-down then 1 battle), pile count for each player, speed mode for auto-play, winner screen.' },
+      { icon:'♠️', name:'Poker (5-card)',  desc:'Draw poker vs AI dealer',            prompt:'HD 5-card draw poker: deal 5 cards, discard and draw phase, AI dealer follows poker strategy, hand rankings displayed, pot and chip betting, blind system, win/lose streak tracking.' },
+    ]},
+    { cat: '📝 Word & Quiz', games: [
+      { icon:'⌨️', name:'Typing Attack',  desc:'Type words to destroy them',         prompt:'HD typing attack: words fall from top in random columns, type and enter to destroy, WPM and accuracy tracked live, lives for missed words (reach bottom), 5 difficulty levels, score multiplier for speed.' },
+      { icon:'❓', name:'Trivia Quiz',     desc:'10 questions, 4 choices, timer',     prompt:'HD trivia quiz: 30 questions across 6 categories, multiple-choice with animated selection, 15-second timer per question, 50/50 lifeline, streak bonus, final score screen with correct answers review.' },
+      { icon:'🔎', name:'Word Search',     desc:'Find hidden words in a grid',        prompt:'HD word search: 15×15 grid, 12 hidden words (horizontal/vertical/diagonal/reverse), click-drag to select, found words struck through, timer, 3 difficulty levels, custom word list mode.' },
+      { icon:'🪓', name:'Hangman',         desc:'Guess the word before you hang',     prompt:'HD Hangman: 250-word dictionary, animated stick-figure drawing step by step, on-screen keyboard, wrong letters shown, category hint, win/lose animations, 2-word phrase mode unlocked at 5 wins.' },
+    ]},
+    { cat: '🏎️ Racing & Sports', games: [
+      { icon:'🏎️', name:'Top-Down Racer', desc:'Race a circuit vs 3 AI cars',       prompt:'HD top-down racing: player car on a looping circuit, 3 AI opponents with path-following, lap counter, lap times + best lap, collision physics, power-up pads (speed boost/shield), 3 track designs.' },
+      { icon:'⚽', name:'Penalty Kicks',   desc:'Aim and shoot vs goalkeeper',        prompt:'HD penalty shootout: aim reticle with mouse, click to set power on a bar, goalkeeper dives based on aim with 10% randomness, 5 shots each side (player vs AI), animated celebration on goal, match result.' },
+      { icon:'🏀', name:'Basketball',      desc:'Shoot hoops with physics arc',       prompt:'HD basketball free-throw: drag-aim arc preview, release to shoot, realistic projectile physics, swish/backboard/rim/miss feedback, 30-second timed mode, consecutive streak bonus, crowd-noise indicator.' },
+      { icon:'🎳', name:'Bowling',         desc:'Roll and score a 10-frame game',     prompt:'HD top-down bowling: drag to aim and set spin, 10-frame scoring (strikes/spares/open), pin physics simulation, gutter bumpers optional, spare and strike animations, full scorecard display.' },
+    ]},
+    { cat: '💰 Idle & Clicker', games: [
+      { icon:'🍪', name:'Cookie Clicker',  desc:'Click to bake, buy upgrades',        prompt:'HD cookie clicker: large animated cookie to click, 8 building types (cursor→portal) each auto-producing, 20 upgrade items, cookies-per-second display, prestige reset, milestone achievements, animated cookie shower.' },
+      { icon:'⛏️', name:'Idle Miner',      desc:'Dig deeper, hire workers',           prompt:'HD idle miner: vertical shaft that deepens, hire workers per level, ore types with values, elevator to surface, upgrade pickaxe/elevator/workers, offline earnings on re-open, prestige for permanent multiplier.' },
+      { icon:'🌱', name:'Idle Farm',        desc:'Grow crops, sell produce',           prompt:'HD idle farm: grid of crop plots, plant and harvest crops, hire farmhands for automation, 10 crop types with different grow times, market price fluctuation, upgrade soil/irrigation, animated day/night cycle.' },
+      { icon:'⚗️', name:'Potion Craft',    desc:'Brew potions, sell to adventurers',  prompt:'HD idle potion shop: gather ingredients with clicks, brew 12 potion recipes, adventurers visit and buy, upgrades for cauldron speed and ingredient quality, rare ingredient events, shop reputation level.' },
+    ]},
+    { cat: '🎲 Creative & Unique', games: [
+      { icon:'🌌', name:'Gravity Sim',     desc:'Place planets, watch orbits',        prompt:'HD n-body gravity simulator: click to place bodies with adjustable mass (drag = initial velocity), gravitational attraction between all bodies, orbit trails, zoom and pan, time-warp slider, stable orbit helper tool.' },
+      { icon:'🔮', name:'Dungeon Crawler', desc:'Roguelike RPG with loot and combat', prompt:'HD roguelike dungeon crawler: procedurally generated floor maps (rooms+corridors), turn-based combat, player stats (HP/ATK/DEF), 5 enemy types with different AI, weapon and armor loot drops, potions, stairs to next floor, death = start over.' },
+      { icon:'🎵', name:'Rhythm Game',     desc:'Hit falling notes in time',          prompt:'HD rhythm game: notes fall in 4 lanes (D/F/J/K keys), hit the target line for Perfect/Good/Miss, combo multiplier, accuracy %, visual beat sync with procedural audio pulses, high score per song, 3 speed difficulties.' },
+      { icon:'🧬', name:'Conway\'s Life',  desc:'Cellular automaton sandbox',         prompt:'HD Conway\'s Game of Life: click/drag to draw live cells, play/pause/step controls, speed slider, generation counter, population graph, wrap-around edges, preset patterns (glider/pulsar/LWSS/gun), clear and random fill buttons.' },
+      { icon:'🏗️', name:'City Builder',   desc:'Place buildings, grow a city',       prompt:'HD grid city builder: place roads, houses, shops, parks, power plants on a tile grid, residents move in when housing+power+jobs covered, tax income, budget panel, happiness meter, disasters (fire/flood) to manage.' },
+      { icon:'🌊', name:'Fluid Sim',       desc:'Paint interactive fluid',            prompt:'HD fluid simulation: mouse drag to add fluid or create velocity fields, color picker for fluid tint, gravity slider, viscosity control, obstacle placement, density and velocity visualization modes, screenshot button.' },
+    ]},
+  ];
+
+  let gsActiveSkillCat = 0;
+
+  function openGSSkills() {
+    document.getElementById('gs-skills-overlay').classList.add('open');
+    gsRenderSkillCats();
+    gsRenderSkillGrid(0, '');
+  }
+  function closeGSSkills() {
+    document.getElementById('gs-skills-overlay').classList.remove('open');
+    document.getElementById('gs-skills-search').value = '';
+  }
+
+  function gsRenderSkillCats() {
+    const tabs = document.getElementById('gs-cat-tabs');
+    tabs.innerHTML = '';
+    GS_SKILLS.forEach((cat, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'gs-cat-tab' + (i === 0 ? ' active' : '');
+      btn.textContent = cat.cat;
+      btn.onclick = () => {
+        document.querySelectorAll('.gs-cat-tab').forEach(t=>t.classList.remove('active'));
+        btn.classList.add('active');
+        gsActiveSkillCat = i;
+        document.getElementById('gs-skills-search').value = '';
+        gsRenderSkillGrid(i, '');
+      };
+      tabs.appendChild(btn);
+    });
+  }
+
+  function gsRenderSkillGrid(catIdx, filter) {
+    const grid = document.getElementById('gs-skills-grid');
+    grid.innerHTML = '';
+    let games;
+    if (filter.trim()) {
+      const q = filter.toLowerCase();
+      games = GS_SKILLS.flatMap(c => c.games).filter(g => g.name.toLowerCase().includes(q) || g.desc.toLowerCase().includes(q));
+    } else {
+      games = GS_SKILLS[catIdx]?.games || [];
+    }
+    if (!games.length) { grid.innerHTML = '<div style="color:var(--muted);font-family:\'Inconsolata\',monospace;font-size:12px;grid-column:1/-1;padding:20px;text-align:center;">No games found</div>'; return; }
+    games.forEach(skill => {
+      const card = document.createElement('div');
+      card.className = 'gs-skill-card';
+      card.innerHTML = `<span class="gs-skill-icon">${skill.icon}</span><div class="gs-skill-name">${skill.name}</div><div class="gs-skill-desc">${skill.desc}</div>`;
+      card.onclick = () => {
+        closeGSSkills();
+        closeGameCreator(); // re-open to reset to create tab
+        openGameCreator();
+        document.getElementById('gs-input').value = skill.prompt;
+        sendGSChat();
+      };
+      grid.appendChild(card);
+    });
+  }
+
+  function gsFilterSkills(q) { gsRenderSkillGrid(gsActiveSkillCat, q); }
+
+  /* ── GameForge AI Studio ── */
   let gsHistory = JSON.parse(localStorage.getItem('gs_history') || '[]');
   let gsProfile = JSON.parse(localStorage.getItem('gs_profile') || '{}');
   let gsChatHistory = [];
@@ -1310,23 +1475,30 @@ HD GAME CODE STANDARDS (required after |||BUILDING||| or |||MODIFYING|||):
     return div;
   }
 
-  // Context-aware quick action chips
+  // Context-aware quick action chips (always includes Skills Browser)
   function gsSetChips(hasGame) {
     const chips = document.getElementById('gs-chips');
     chips.innerHTML = '';
+    // Browse button always first
+    const browse = document.createElement('div');
+    browse.className = 'gschip';
+    browse.style.cssText = 'border-color:var(--green);color:var(--green);';
+    browse.textContent = '🎮 Browse 40+ Skills';
+    browse.onclick = openGSSkills;
+    chips.appendChild(browse);
     const items = hasGame
       ? [['⚡ Make harder','Make the game noticeably harder — faster enemies, tighter timing, more obstacles'],
-         ['🎨 New color theme','Give the game a completely different vivid color scheme'],
-         ['➕ Add power-ups','Add 3 different power-up types with visual effects when collected'],
-         ['🏆 Leaderboard','Add a local high-score leaderboard showing the top 10 scores'],
-         ['🔊 Sound effects','Add procedural Web Audio sound effects for all game events'],
-         ['🆕 New game','Start fresh — let\'s build a completely different game']]
-      : [['🎲 Surprise me','Build me something creative and unexpected — surprise me with a unique game concept!'],
-         ['🐍 Snake','Classic Snake with neon visuals, power-ups, and speed levels'],
-         ['👾 Space Invaders','Space Invaders with HD particle explosions, shields, and boss waves'],
-         ['🧩 Tetris','Tetris with smooth piece movement, ghost piece, and level progression'],
-         ['🏃 Runner','Endless runner with parallax backgrounds and obstacle variety'],
-         ['🃏 Card Match','Animated memory card matching with emoji cards and combo scoring']];
+         ['🎨 New color theme','Give the game a completely different vivid color scheme and visual style'],
+         ['➕ Add power-ups','Add 3 distinct power-up types with pickup visual effects and gameplay impact'],
+         ['🏆 Leaderboard','Add a local high-score leaderboard that saves and displays the top 10 scores'],
+         ['🔊 Add sounds','Add procedural Web Audio API sound effects for all major game events'],
+         ['🆕 New game','Start fresh — I want to build a completely different new game']]
+      : [['🎲 Surprise me','Build me something creative and unexpected — I want to be surprised with a unique concept!'],
+         ['🐍 Snake','Classic Snake: neon visuals, power-ups, speed levels, particle effects on eat'],
+         ['👾 Space Invaders','HD Space Invaders with shields, alien bombs, UFO bonus, and particle explosions'],
+         ['🧩 Tetris','Tetris with ghost piece, hold piece, T-spin detection, and level progression'],
+         ['🏰 Tower Defense','Tower defense with 4 tower types, waves, gold economy, and boss enemies'],
+         ['🔮 Dungeon Crawler','Roguelike RPG with procedural maps, turn-based combat, and loot drops']];
     items.forEach(([label, prompt]) => {
       const chip = document.createElement('div');
       chip.className = 'gschip';
@@ -1577,7 +1749,7 @@ HD GAME CODE STANDARDS (required after |||BUILDING||| or |||MODIFYING|||):
     let greeting;
     if (total > 10) greeting = `Welcome back! 🎮 You've shipped ${total} games — ready to build another? What are we creating today?`;
     else if (total > 0) greeting = `Good to see you again! 👋 You've built ${total} game${total>1?'s':''} so far. What shall we create next?`;
-    else greeting = `Welcome to GameForge AI! 🎮✨\n\nI'm your AI game engineer. Describe any game in plain English and I'll build it as a fully-playable, high-definition HTML5 game — right in this browser.\n\nExamples:\n• "a neon snake game with power-ups"\n• "space invaders with HD particle explosions"\n• "a word puzzle with a timer and leaderboard"\n\nWhat shall we create?`;
+    else greeting = `Welcome to GameForge AI! 🎮✨\n\nI'm your AI game engineer. Describe any game in plain English and I'll build it as a fully-playable, high-definition HTML5 game — right in this browser.\n\nTap "🎮 Browse 40+ Skills" below to explore every game type I can build, or just describe your idea here.\n\nWhat shall we create?`;
     gsAppendMsg('ai', greeting);
     gsSetChips(false);
   }
