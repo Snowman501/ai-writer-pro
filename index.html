@@ -260,6 +260,24 @@
 
     @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
 
+    /* ── Game Creator ── */
+    #game-creator-panel .fs-body { display: flex; flex-direction: column; gap: 12px; }
+    .game-chip-row { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+    .chip-row-label { font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--muted); flex-shrink: 0; }
+    .game-chip { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 4px 11px; font-family: 'Inconsolata', monospace; font-size: 10px; color: #c0b8a8; cursor: pointer; transition: all 0.15s; white-space: nowrap; -webkit-tap-highlight-color: transparent; user-select: none; }
+    .game-chip:active, .game-chip:hover { border-color: var(--green); color: #fff; background: #1e3020; }
+    #game-prompt { background: var(--card-bg); border: 1px solid var(--border); color: #d4c9b8; border-radius: 4px; padding: 12px; font-family: 'Lora', serif; font-size: 14px; line-height: 1.7; width: 100%; min-height: 90px; resize: vertical; outline: none; }
+    #game-prompt:focus { border-color: var(--green); }
+    #game-thinking { color: var(--green); font-family: 'Inconsolata', monospace; font-size: 11px; display: none; animation: pulse 1.2s infinite; }
+    #game-thinking.visible { display: block; }
+    .game-preview-wrap { background: #000; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+    #game-iframe { width: 100%; height: 480px; border: none; display: block; }
+    #game-code-view { background: #0d1a0d; border: 1px solid var(--border); border-radius: 4px; padding: 12px; color: #88cc88; font-family: 'Inconsolata', monospace; font-size: 10px; line-height: 1.5; overflow: auto; white-space: pre; max-height: 420px; display: none; margin-top: 8px; }
+    .game-ideas-section { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px; }
+    .game-ideas-section h4 { font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--green); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .game-idea-chip { display: inline-block; background: #141e14; border: 1px solid #283828; border-radius: 4px; padding: 5px 9px; font-family: 'Inconsolata', monospace; font-size: 11px; color: #a0c0a0; cursor: pointer; margin: 3px; transition: all 0.15s; }
+    .game-idea-chip:active, .game-idea-chip:hover { border-color: var(--green); color: #fff; background: #1e3020; }
+
     #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(80px); background: #2a2520; color: #d4c9b8; border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 8px 16px; border-radius: 4px; font-family: 'Inconsolata', monospace; font-size: 12px; transition: transform 0.3s ease; pointer-events: none; z-index: 500; white-space: nowrap; }
     #toast.show { transform: translateX(-50%) translateY(0); }
 
@@ -340,6 +358,7 @@
       <button onclick="openBooks()" class="btn-gold">📚 Books</button>
       <button onclick="openVoice()" style="border-color:var(--gold);color:var(--gold);">🎤 Voice</button>
       <button onclick="openBible()" class="btn-blue">📋 Bible</button>
+      <button onclick="openGameCreator()" class="btn-green">🎮 Game</button>
       <button onclick="toggleFocus()">◎</button>
       <button onclick="openSettings()">⚙</button>
     </div>
@@ -485,6 +504,60 @@
       <textarea id="bible-books" placeholder="Book 1: ...\nBook 2: ...\nBook 3: ..."></textarea>
     </div>
     <button onclick="saveBible()" class="btn-blue" style="width:100%;margin-top:4px;">Save Bible</button>
+  </div>
+</div>
+
+<!-- AI Game Creator -->
+<div id="game-creator-panel" class="fs-panel">
+  <div class="fs-header">
+    <h2>🎮 AI Game Creator</h2>
+    <button onclick="closeGameCreator()">✕ Close</button>
+  </div>
+  <div class="fs-body">
+    <div class="game-chip-row">
+      <span class="chip-row-label">Quick pick:</span>
+      <div class="game-chip" onclick="pickGameType('Classic Snake game with a growing snake, food pellets, score tracking, increasing speed each level, and game over on wall or self-collision. Dark retro aesthetic with neon colors.')">🐍 Snake</div>
+      <div class="game-chip" onclick="pickGameType('Two-player Pong with a smart AI opponent. Ball speeds up over time. First to 7 wins. W/S keys for the player paddle. Clean minimal neon design.')">🏓 Pong</div>
+      <div class="game-chip" onclick="pickGameType('Breakout/Arkanoid game with colorful multi-row bricks, a bouncing ball, and a paddle. Power-ups drop from destroyed bricks. Lives system, score, and increasing difficulty.')">🧱 Breakout</div>
+      <div class="game-chip" onclick="pickGameType('Space Invaders with alien formations that march and shoot back at the player. Player ship shoots upward. Score per alien type. Shield bunkers. Lives. Waves get faster.')">👾 Invaders</div>
+      <div class="game-chip" onclick="pickGameType('Side-scrolling platformer with run, jump, and double-jump mechanics. Moving platforms, spike traps, collectable coins, enemy creatures that patrol, lives counter, and a level exit door.')">🏃 Platformer</div>
+      <div class="game-chip" onclick="pickGameType('Memory card matching game with a 4x4 grid of face-down emoji cards. Flip two at a time to find matching pairs. Move counter, elapsed timer, and animated win celebration.')">🃏 Memory</div>
+      <div class="game-chip" onclick="pickGameType('Wordle clone: guess the hidden 5-letter word in 6 attempts. Color-coded tile feedback — green for correct position, yellow for wrong position, gray for not in word. On-screen keyboard.')">🔤 Wordle</div>
+      <div class="game-chip" onclick="pickGameType('Endless side-scrolling runner. The character auto-runs right; tap, click, or press Space to jump over obstacles and gaps. Distance-based score. Speed increases over time. Pixel art style.')">🚀 Runner</div>
+      <div class="game-chip" onclick="pickGameType('Tetris clone with all 7 standard tetrominoes, rotation (up arrow), soft drop (down), hard drop (space), line clearing, scoring, levels, next-piece preview, and increasing drop speed.')">🧩 Tetris</div>
+      <div class="game-chip" onclick="pickGameType('Top-down maze game with a procedurally generated maze. Arrow keys or WASD to navigate. Find the key to unlock the exit. Display a step counter and elapsed timer.')">🌀 Maze</div>
+    </div>
+    <div>
+      <label>Describe your game:</label>
+      <textarea id="game-prompt" placeholder="e.g. 'A space shooter where you collect gems and fight boss enemies every 5 waves' or 'A math quiz game where wrong answers cost lives and questions speed up'..."></textarea>
+    </div>
+    <div class="row">
+      <button onclick="generateGame()" class="btn-green" style="padding:8px 18px;font-size:12px;">🎮 Generate Game</button>
+    </div>
+    <div id="game-thinking">✦ AI is writing your game — this usually takes 15–30 seconds...</div>
+    <div id="game-preview-area" style="display:none;">
+      <div class="game-preview-wrap">
+        <iframe id="game-iframe" sandbox="allow-scripts allow-same-origin" title="Game Preview" allowfullscreen></iframe>
+      </div>
+      <div id="game-actions" class="row" style="margin-top:8px;display:none;">
+        <button onclick="downloadGame()" class="btn-green">⬇ Download</button>
+        <button onclick="copyGameCode()">⎘ Copy Code</button>
+        <button onclick="toggleGameCode()" class="btn-blue">{ } Code</button>
+        <button onclick="generateGame()" class="btn-purple">↺ Regenerate</button>
+      </div>
+      <pre id="game-code-view"></pre>
+    </div>
+    <div class="game-ideas-section">
+      <h4>💡 Inspiration — tap to use</h4>
+      <span class="game-idea-chip" onclick="useGameIdea(this)">A roguelike dungeon crawler with procedural rooms and turn-based combat</span>
+      <span class="game-idea-chip" onclick="useGameIdea(this)">A typing speed game where you destroy asteroids by typing words correctly</span>
+      <span class="game-idea-chip" onclick="useGameIdea(this)">An idle clicker where you run a coffee shop with upgrades and automation</span>
+      <span class="game-idea-chip" onclick="useGameIdea(this)">A Flappy Bird clone with obstacles, gravity, and a high score tracker</span>
+      <span class="game-idea-chip" onclick="useGameIdea(this)">A top-down zombie survival shooter with waves and weapon pickups</span>
+      <span class="game-idea-chip" onclick="useGameIdea(this)">A math quiz where wrong answers cost lives and questions get harder</span>
+      <span class="game-idea-chip" onclick="useGameIdea(this)">A color mixing puzzle — blend RGB sliders to match a target shade</span>
+      <span class="game-idea-chip" onclick="useGameIdea(this)">A 2048-style sliding tile number merging puzzle</span>
+    </div>
   </div>
 </div>
 
@@ -1023,6 +1096,115 @@ Return ONLY the polished chapter. No preamble, no notes, no explanation.`;
 
   /* ── Toast ── */
   function showToast(msg){toast.textContent=msg;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2400);}
+
+  /* ── Game Creator ── */
+  let generatedGameCode = '';
+
+  function openGameCreator() { document.getElementById('game-creator-panel').classList.add('open'); }
+  function closeGameCreator() { document.getElementById('game-creator-panel').classList.remove('open'); }
+
+  function pickGameType(prompt) {
+    document.getElementById('game-prompt').value = prompt;
+    document.getElementById('game-prompt').focus();
+    showToast('Game type selected — hit Generate!');
+  }
+
+  function useGameIdea(el) {
+    document.getElementById('game-prompt').value = el.textContent.trim();
+    document.getElementById('game-prompt').focus();
+    showToast('Idea loaded — hit Generate Game!');
+  }
+
+  async function generateGame() {
+    if (!apiKey) { openSettings(); return; }
+    const prompt = document.getElementById('game-prompt').value.trim();
+    if (!prompt) { showToast('Describe your game first'); return; }
+
+    const thinking = document.getElementById('game-thinking');
+    const previewArea = document.getElementById('game-preview-area');
+    const actions = document.getElementById('game-actions');
+    const codeView = document.getElementById('game-code-view');
+
+    thinking.classList.add('visible');
+    previewArea.style.display = 'none';
+    actions.style.display = 'none';
+    codeView.style.display = 'none';
+    generatedGameCode = '';
+
+    const systemPrompt = `You are an expert HTML5 game developer. Output ONLY raw HTML — no markdown fences, no explanations, no commentary.
+
+REQUIREMENTS:
+- Begin immediately with <!DOCTYPE html> and end with </html>
+- All CSS inside <style> tags, all JavaScript inside <script> tags
+- Zero external dependencies — no CDN links, no external images, no external fonts
+- Use the Canvas 2D API or DOM elements for all visuals
+- Support keyboard AND mouse/touch input where applicable
+- Include: a visible score or status display, clear game-over detection, and a restart option (button on screen or press R/Space)
+- Dark, modern visual style — clean and polished
+- Smooth 60 fps gameplay using requestAnimationFrame where appropriate
+- Output the ENTIRE complete game — never truncate or omit sections`;
+
+    const userPrompt = `Build this game: ${prompt}
+
+Output ONLY the complete, self-contained HTML file starting with <!DOCTYPE html>.`;
+
+    try {
+      const code = await groqCall([{role:'user',content:userPrompt}], systemPrompt, 8000);
+
+      let html = code.trim();
+      const fenced = html.match(/```(?:html)?\n?([\s\S]*?)```/);
+      if (fenced) html = fenced[1].trim();
+      if (!html.toLowerCase().startsWith('<!doctype') && !html.toLowerCase().startsWith('<html')) {
+        const idx = html.toLowerCase().indexOf('<!doctype');
+        if (idx > 0) html = html.slice(idx);
+      }
+
+      generatedGameCode = html;
+
+      const blob = new Blob([html], {type: 'text/html'});
+      const url = URL.createObjectURL(blob);
+      const iframe = document.getElementById('game-iframe');
+      iframe.onload = () => URL.revokeObjectURL(url);
+      iframe.src = url;
+
+      previewArea.style.display = 'block';
+      actions.style.display = 'flex';
+      showToast('✦ Game ready — click inside to play!');
+    } catch(e) {
+      showToast('Generation failed — check API key in Settings');
+    }
+    thinking.classList.remove('visible');
+  }
+
+  function downloadGame() {
+    if (!generatedGameCode) { showToast('Generate a game first'); return; }
+    const slug = document.getElementById('game-prompt').value.trim().slice(0,40).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    const blob = new Blob([generatedGameCode], {type: 'text/html'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `game-${slug||'created'}.html`; a.click();
+    URL.revokeObjectURL(url);
+    showToast('Game downloaded ✓');
+  }
+
+  function copyGameCode() {
+    if (!generatedGameCode) { showToast('Generate a game first'); return; }
+    navigator.clipboard.writeText(generatedGameCode).then(() => showToast('Code copied ✓'));
+  }
+
+  function toggleGameCode() {
+    const codeView = document.getElementById('game-code-view');
+    const iframe = document.getElementById('game-iframe');
+    const showing = codeView.style.display !== 'none';
+    if (showing) {
+      codeView.style.display = 'none';
+      iframe.style.display = 'block';
+    } else {
+      codeView.textContent = generatedGameCode;
+      codeView.style.display = 'block';
+      iframe.style.display = 'none';
+    }
+  }
 
   /* ── Keyboard ── */
   document.addEventListener('keydown',e=>{
