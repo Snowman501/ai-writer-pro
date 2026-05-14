@@ -260,23 +260,93 @@
 
     @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
 
-    /* ── Game Creator ── */
-    #game-creator-panel .fs-body { display: flex; flex-direction: column; gap: 12px; }
-    .game-chip-row { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
-    .chip-row-label { font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--muted); flex-shrink: 0; }
-    .game-chip { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 4px 11px; font-family: 'Inconsolata', monospace; font-size: 10px; color: #c0b8a8; cursor: pointer; transition: all 0.15s; white-space: nowrap; -webkit-tap-highlight-color: transparent; user-select: none; }
-    .game-chip:active, .game-chip:hover { border-color: var(--green); color: #fff; background: #1e3020; }
-    #game-prompt { background: var(--card-bg); border: 1px solid var(--border); color: #d4c9b8; border-radius: 4px; padding: 12px; font-family: 'Lora', serif; font-size: 14px; line-height: 1.7; width: 100%; min-height: 90px; resize: vertical; outline: none; }
-    #game-prompt:focus { border-color: var(--green); }
-    #game-thinking { color: var(--green); font-family: 'Inconsolata', monospace; font-size: 11px; display: none; animation: pulse 1.2s infinite; }
-    #game-thinking.visible { display: block; }
-    .game-preview-wrap { background: #000; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
-    #game-iframe { width: 100%; height: 480px; border: none; display: block; }
-    #game-code-view { background: #0d1a0d; border: 1px solid var(--border); border-radius: 4px; padding: 12px; color: #88cc88; font-family: 'Inconsolata', monospace; font-size: 10px; line-height: 1.5; overflow: auto; white-space: pre; max-height: 420px; display: none; margin-top: 8px; }
-    .game-ideas-section { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px; }
-    .game-ideas-section h4 { font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--green); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
-    .game-idea-chip { display: inline-block; background: #141e14; border: 1px solid #283828; border-radius: 4px; padding: 5px 9px; font-family: 'Inconsolata', monospace; font-size: 11px; color: #a0c0a0; cursor: pointer; margin: 3px; transition: all 0.15s; }
-    .game-idea-chip:active, .game-idea-chip:hover { border-color: var(--green); color: #fff; background: #1e3020; }
+    /* ── GameForge AI Studio ── */
+    #game-tab-bar { display: flex; background: #13110c; border-bottom: 1px solid var(--border); flex-shrink: 0; overflow-x: auto; scrollbar-width: none; }
+    #game-tab-bar::-webkit-scrollbar { display: none; }
+    .gstab { flex: 1; min-width: 65px; padding: 9px 4px; font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--muted); text-align: center; cursor: pointer; background: transparent; border: none; border-bottom: 2px solid transparent; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+    .gstab:hover { color: #d4c9b8; background: transparent; }
+    .gstab.active { color: var(--green); border-bottom-color: var(--green); background: transparent; }
+    .gstab.gold { color: var(--gold); }
+    .gstab.gold:hover { background: #1a1200; border-bottom-color: var(--gold); }
+    .gs-tab-pane { display: none; flex: 1; overflow: hidden; flex-direction: column; min-height: 0; }
+    .gs-tab-pane.active { display: flex; }
+    /* Create layout */
+    #gs-create-layout { display: grid; grid-template-columns: 310px 1fr; flex: 1; overflow: hidden; min-height: 0; }
+    @media (max-width: 720px) { #gs-create-layout { grid-template-columns: 1fr; } #gs-preview-col { display: none; } #gs-preview-col.shown { display: flex; flex-direction: column; position: fixed; inset: 0; z-index: 120; background: #080808; } }
+    /* Chat column */
+    #gs-chat-col { display: flex; flex-direction: column; border-right: 1px solid var(--border); background: var(--chat-bg); min-height: 0; }
+    #gs-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 7px; }
+    .gsmsg { max-width: 93%; padding: 9px 12px; border-radius: 8px; font-size: 13px; line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
+    .gsmsg.user { background: var(--user-bubble); color: #d4c9b8; border: 1px solid var(--border); align-self: flex-end; font-family: 'Inconsolata', monospace; font-size: 12px; }
+    .gsmsg.ai { background: var(--ai-bubble); color: #c8d8c9; border: 1px solid #2a3a2b; align-self: flex-start; }
+    .gsmsg.ai.thinking { animation: pulse 1.2s infinite; color: var(--green); font-family: 'Inconsolata', monospace; font-size: 11px; }
+    .gsmsg.sys { background: transparent; color: var(--muted); font-family: 'Inconsolata', monospace; font-size: 10px; align-self: center; border: none; padding: 2px 6px; text-align: center; }
+    #gs-input-row { padding: 7px 8px; border-top: 1px solid var(--border); display: flex; gap: 5px; flex-shrink: 0; }
+    #gs-input { flex: 1; background: #1a1814; border: 1px solid var(--border); color: #d4c9b8; border-radius: 4px; padding: 7px 10px; font-family: 'Lora', serif; font-size: 13px; outline: none; resize: none; min-height: 36px; max-height: 80px; }
+    #gs-input:focus { border-color: var(--green); }
+    #gs-input::placeholder { color: var(--muted); font-style: italic; }
+    #gs-chips { padding: 5px 7px; border-top: 1px solid var(--border); display: flex; gap: 4px; flex-wrap: wrap; flex-shrink: 0; background: #0f0e0a; min-height: 34px; align-items: center; }
+    .gschip { background: #141e14; border: 1px solid #262e26; border-radius: 10px; padding: 3px 9px; font-family: 'Inconsolata', monospace; font-size: 10px; color: #8ab08a; cursor: pointer; white-space: nowrap; transition: all 0.12s; user-select: none; -webkit-tap-highlight-color: transparent; }
+    .gschip:active, .gschip:hover { background: #1e3020; border-color: var(--green); color: #d4ffd4; }
+    /* Usage bar */
+    #gs-usage-bar { padding: 4px 10px; background: #0f0e0a; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .gs-tier-badge { font-family: 'Inconsolata', monospace; font-size: 9px; padding: 1px 7px; border-radius: 8px; flex-shrink: 0; }
+    .gs-tier-badge.free { color: var(--muted); border: 1px solid var(--border); }
+    .gs-tier-badge.pro { color: var(--gold); border: 1px solid var(--gold); background: #1a1200; }
+    .gs-usage-track { flex: 1; height: 2px; background: var(--border); border-radius: 1px; overflow: hidden; }
+    .gs-usage-fill { height: 100%; background: var(--green); border-radius: 1px; transition: width 0.4s; }
+    .gs-usage-text { font-family: 'Inconsolata', monospace; font-size: 9px; color: var(--muted); white-space: nowrap; }
+    /* Preview column */
+    #gs-preview-col { display: flex; flex-direction: column; background: #080808; min-height: 0; }
+    .gs-preview-hdr { padding: 7px 10px; background: var(--toolbar); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .gs-preview-hdr-title { font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.06em; }
+    .gs-preview-hdr-btns { display: flex; gap: 3px; }
+    .gs-preview-hdr-btns button { font-size: 9px; padding: 3px 7px; }
+    #gs-iframe-wrap { flex: 1; min-height: 0; display: flex; align-items: stretch; justify-content: stretch; position: relative; }
+    #gs-placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+    #gs-placeholder .ph-icon { font-size: 54px; opacity: 0.1; margin-bottom: 10px; }
+    #gs-placeholder .ph-line { font-family: 'Inconsolata', monospace; font-size: 11px; color: #2a2a2a; }
+    #gs-iframe { width: 100%; height: 100%; border: none; display: none; }
+    #gs-code-pre { width: 100%; height: 100%; background: #060d06; color: #4a9a4a; font-family: 'Inconsolata', monospace; font-size: 9px; line-height: 1.5; overflow: auto; white-space: pre; padding: 10px; display: none; margin: 0; box-sizing: border-box; }
+    /* Library tab */
+    #gs-library-grid { padding: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; overflow-y: auto; flex: 1; align-content: start; }
+    .gs-lib-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; transition: border-color 0.15s; }
+    .gs-lib-card:hover { border-color: var(--green); }
+    .gs-lib-thumb { height: 86px; display: flex; align-items: center; justify-content: center; font-size: 30px; }
+    .gs-lib-body { padding: 8px 10px; }
+    .gs-lib-name { font-family: 'Inconsolata', monospace; font-size: 11px; color: #d4c9b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
+    .gs-lib-meta { font-family: 'Inconsolata', monospace; font-size: 9px; color: var(--muted); }
+    .gs-lib-footer { padding: 7px 9px; border-top: 1px solid var(--border); display: flex; gap: 4px; }
+    .gs-lib-footer button { flex: 1; font-size: 9px; padding: 4px 2px; }
+    /* Profile tab */
+    #gs-profile-scroll { overflow-y: auto; flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .gs-profile-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 14px; }
+    .gs-profile-card h4 { font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--green); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+    .gs-stat { display: flex; justify-content: space-between; font-family: 'Inconsolata', monospace; font-size: 11px; color: #d4c9b8; padding: 5px 0; border-bottom: 1px solid var(--border); }
+    .gs-stat:last-child { border-bottom: none; }
+    .gs-stat-val { color: var(--green); font-weight: bold; }
+    .gs-genre-row { margin: 5px 0; }
+    .gs-genre-label { font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--muted); display: flex; justify-content: space-between; margin-bottom: 2px; }
+    .gs-genre-track { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .gs-genre-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.5s; }
+    /* Upgrade overlay */
+    #gs-upgrade-overlay { position: fixed; inset: 0; background: var(--overlay); display: none; align-items: center; justify-content: center; z-index: 400; padding: 16px; }
+    #gs-upgrade-overlay.open { display: flex; }
+    .gs-upgrade-card { background: #1a1610; border: 1px solid var(--gold); border-radius: 12px; padding: 26px 22px; max-width: 500px; width: 100%; }
+    .gs-upgrade-card h2 { font-family: 'Inconsolata', monospace; font-size: 16px; color: var(--gold); margin-bottom: 5px; }
+    .gs-upgrade-tagline { color: var(--muted); font-family: 'Inconsolata', monospace; font-size: 11px; margin-bottom: 18px; line-height: 1.6; }
+    .gs-plans { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+    @media (max-width: 500px) { .gs-plans { grid-template-columns: 1fr; } }
+    .gs-plan { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; text-align: center; }
+    .gs-plan.featured { border-color: var(--gold); background: #1e1800; }
+    .gs-plan h3 { font-family: 'Inconsolata', monospace; font-size: 10px; color: #d4c9b8; text-transform: uppercase; margin-bottom: 6px; }
+    .gs-plan .gs-price { font-family: 'Inconsolata', monospace; font-size: 22px; color: var(--gold); margin-bottom: 8px; line-height: 1.1; }
+    .gs-plan .gs-price-sub { font-size: 10px; color: var(--muted); display: block; }
+    .gs-plan ul { list-style: none; font-family: 'Inconsolata', monospace; font-size: 9px; color: var(--muted); text-align: left; line-height: 1.9; }
+    .gs-plan ul li::before { content: '✓ '; color: var(--green); }
+    .gs-plan-btn { margin-top: 10px; width: 100%; font-size: 10px; padding: 6px; }
+    .gs-upgrade-note { text-align: center; font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--muted); }
+    .gs-upgrade-note a { color: var(--green); cursor: pointer; text-decoration: underline; }
 
     #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(80px); background: #2a2520; color: #d4c9b8; border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 8px 16px; border-radius: 4px; font-family: 'Inconsolata', monospace; font-size: 12px; transition: transform 0.3s ease; pointer-events: none; z-index: 500; white-space: nowrap; }
     #toast.show { transform: translateX(-50%) translateY(0); }
@@ -507,57 +577,104 @@
   </div>
 </div>
 
-<!-- AI Game Creator -->
+<!-- GameForge AI Studio -->
 <div id="game-creator-panel" class="fs-panel">
   <div class="fs-header">
-    <h2>🎮 AI Game Creator</h2>
-    <button onclick="closeGameCreator()">✕ Close</button>
+    <h2>🎮 GameForge AI Studio</h2>
+    <div style="display:flex;align-items:center;gap:7px;">
+      <span id="gs-hdr-badge" class="gs-tier-badge free">FREE</span>
+      <button onclick="closeGameCreator()">✕ Close</button>
+    </div>
   </div>
-  <div class="fs-body">
-    <div class="game-chip-row">
-      <span class="chip-row-label">Quick pick:</span>
-      <div class="game-chip" onclick="pickGameType('Classic Snake game with a growing snake, food pellets, score tracking, increasing speed each level, and game over on wall or self-collision. Dark retro aesthetic with neon colors.')">🐍 Snake</div>
-      <div class="game-chip" onclick="pickGameType('Two-player Pong with a smart AI opponent. Ball speeds up over time. First to 7 wins. W/S keys for the player paddle. Clean minimal neon design.')">🏓 Pong</div>
-      <div class="game-chip" onclick="pickGameType('Breakout/Arkanoid game with colorful multi-row bricks, a bouncing ball, and a paddle. Power-ups drop from destroyed bricks. Lives system, score, and increasing difficulty.')">🧱 Breakout</div>
-      <div class="game-chip" onclick="pickGameType('Space Invaders with alien formations that march and shoot back at the player. Player ship shoots upward. Score per alien type. Shield bunkers. Lives. Waves get faster.')">👾 Invaders</div>
-      <div class="game-chip" onclick="pickGameType('Side-scrolling platformer with run, jump, and double-jump mechanics. Moving platforms, spike traps, collectable coins, enemy creatures that patrol, lives counter, and a level exit door.')">🏃 Platformer</div>
-      <div class="game-chip" onclick="pickGameType('Memory card matching game with a 4x4 grid of face-down emoji cards. Flip two at a time to find matching pairs. Move counter, elapsed timer, and animated win celebration.')">🃏 Memory</div>
-      <div class="game-chip" onclick="pickGameType('Wordle clone: guess the hidden 5-letter word in 6 attempts. Color-coded tile feedback — green for correct position, yellow for wrong position, gray for not in word. On-screen keyboard.')">🔤 Wordle</div>
-      <div class="game-chip" onclick="pickGameType('Endless side-scrolling runner. The character auto-runs right; tap, click, or press Space to jump over obstacles and gaps. Distance-based score. Speed increases over time. Pixel art style.')">🚀 Runner</div>
-      <div class="game-chip" onclick="pickGameType('Tetris clone with all 7 standard tetrominoes, rotation (up arrow), soft drop (down), hard drop (space), line clearing, scoring, levels, next-piece preview, and increasing drop speed.')">🧩 Tetris</div>
-      <div class="game-chip" onclick="pickGameType('Top-down maze game with a procedurally generated maze. Arrow keys or WASD to navigate. Find the key to unlock the exit. Display a step counter and elapsed timer.')">🌀 Maze</div>
-    </div>
-    <div>
-      <label>Describe your game:</label>
-      <textarea id="game-prompt" placeholder="e.g. 'A space shooter where you collect gems and fight boss enemies every 5 waves' or 'A math quiz game where wrong answers cost lives and questions speed up'..."></textarea>
-    </div>
-    <div class="row">
-      <button onclick="generateGame()" class="btn-green" style="padding:8px 18px;font-size:12px;">🎮 Generate Game</button>
-    </div>
-    <div id="game-thinking">✦ AI is writing your game — this usually takes 15–30 seconds...</div>
-    <div id="game-preview-area" style="display:none;">
-      <div class="game-preview-wrap">
-        <iframe id="game-iframe" sandbox="allow-scripts allow-same-origin" title="Game Preview" allowfullscreen></iframe>
+  <div id="game-tab-bar">
+    <button class="gstab active" onclick="switchGSTab('create',this)">✦ Create</button>
+    <button class="gstab" onclick="switchGSTab('library',this)">📚 Library</button>
+    <button class="gstab" onclick="switchGSTab('profile',this)">🧠 AI Profile</button>
+    <button class="gstab gold" onclick="showGSUpgrade()">⚡ Upgrade</button>
+  </div>
+
+  <!-- Create Tab -->
+  <div id="gs-pane-create" class="gs-tab-pane active">
+    <div id="gs-create-layout">
+      <!-- Chat column -->
+      <div id="gs-chat-col">
+        <div id="gs-messages"></div>
+        <div id="gs-input-row">
+          <textarea id="gs-input" placeholder="Describe your game or ask for changes..." rows="1"></textarea>
+          <button onclick="sendGSChat()" class="btn-green" style="padding:7px 10px;align-self:flex-end;flex-shrink:0;">▶</button>
+        </div>
+        <div id="gs-chips"></div>
+        <div id="gs-usage-bar">
+          <span id="gs-usage-badge" class="gs-tier-badge free">FREE</span>
+          <div class="gs-usage-track"><div class="gs-usage-fill" id="gs-usage-fill"></div></div>
+          <span class="gs-usage-text" id="gs-usage-text">5 games/day</span>
+        </div>
       </div>
-      <div id="game-actions" class="row" style="margin-top:8px;display:none;">
-        <button onclick="downloadGame()" class="btn-green">⬇ Download</button>
-        <button onclick="copyGameCode()">⎘ Copy Code</button>
-        <button onclick="toggleGameCode()" class="btn-blue">{ } Code</button>
-        <button onclick="generateGame()" class="btn-purple">↺ Regenerate</button>
+      <!-- Preview column -->
+      <div id="gs-preview-col">
+        <div class="gs-preview-hdr">
+          <span class="gs-preview-hdr-title">🎮 LIVE PREVIEW</span>
+          <div class="gs-preview-hdr-btns">
+            <button onclick="gsDownload()" class="btn-green" id="gs-dl-btn" style="display:none;">⬇ Save</button>
+            <button onclick="gsCopyCode()" id="gs-copy-btn" style="display:none;">⎘ Code</button>
+            <button onclick="gsToggleCode()" class="btn-blue" id="gs-code-btn" style="display:none;">{ }</button>
+            <button onclick="document.getElementById('gs-preview-col').classList.remove('shown')" style="display:none;" id="gs-back-btn">✕</button>
+          </div>
+        </div>
+        <div id="gs-iframe-wrap">
+          <div id="gs-placeholder">
+            <div class="ph-icon">🎮</div>
+            <div class="ph-line">Your game will appear here</div>
+            <div class="ph-line" style="margin-top:5px;opacity:0.4;">Describe a game in the chat →</div>
+          </div>
+          <iframe id="gs-iframe" sandbox="allow-scripts allow-same-origin" title="Game Preview" allowfullscreen></iframe>
+          <pre id="gs-code-pre"></pre>
+        </div>
       </div>
-      <pre id="game-code-view"></pre>
     </div>
-    <div class="game-ideas-section">
-      <h4>💡 Inspiration — tap to use</h4>
-      <span class="game-idea-chip" onclick="useGameIdea(this)">A roguelike dungeon crawler with procedural rooms and turn-based combat</span>
-      <span class="game-idea-chip" onclick="useGameIdea(this)">A typing speed game where you destroy asteroids by typing words correctly</span>
-      <span class="game-idea-chip" onclick="useGameIdea(this)">An idle clicker where you run a coffee shop with upgrades and automation</span>
-      <span class="game-idea-chip" onclick="useGameIdea(this)">A Flappy Bird clone with obstacles, gravity, and a high score tracker</span>
-      <span class="game-idea-chip" onclick="useGameIdea(this)">A top-down zombie survival shooter with waves and weapon pickups</span>
-      <span class="game-idea-chip" onclick="useGameIdea(this)">A math quiz where wrong answers cost lives and questions get harder</span>
-      <span class="game-idea-chip" onclick="useGameIdea(this)">A color mixing puzzle — blend RGB sliders to match a target shade</span>
-      <span class="game-idea-chip" onclick="useGameIdea(this)">A 2048-style sliding tile number merging puzzle</span>
+  </div>
+
+  <!-- Library Tab -->
+  <div id="gs-pane-library" class="gs-tab-pane">
+    <div style="padding:10px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+      <span style="font-family:'Inconsolata',monospace;font-size:11px;color:var(--green);letter-spacing:0.06em;">SAVED GAMES</span>
+      <button onclick="switchGSTab('create',document.querySelector('.gstab'))" class="btn-green" style="font-size:10px;padding:4px 8px;">+ Create New</button>
     </div>
+    <div id="gs-library-grid"></div>
+  </div>
+
+  <!-- Profile Tab -->
+  <div id="gs-pane-profile" class="gs-tab-pane">
+    <div id="gs-profile-scroll"></div>
+  </div>
+</div>
+
+<!-- Upgrade Modal -->
+<div id="gs-upgrade-overlay">
+  <div class="gs-upgrade-card">
+    <h2>⚡ Upgrade GameForge</h2>
+    <p class="gs-upgrade-tagline">Unlimited AI game creation, advanced HD generation, iterative chat refinement, commercial license, and priority AI speed.</p>
+    <div class="gs-plans">
+      <div class="gs-plan">
+        <h3>Starter</h3>
+        <div class="gs-price">Free<span class="gs-price-sub">forever</span></div>
+        <ul><li>5 HD games / day</li><li>All game types</li><li>Game library</li><li>Download & share</li></ul>
+        <button class="gs-plan-btn" onclick="closeGSUpgrade()">Current Plan</button>
+      </div>
+      <div class="gs-plan featured">
+        <h3>Creator ⭐</h3>
+        <div class="gs-price">$9<span class="gs-price-sub">/month</span></div>
+        <ul><li>Unlimited games</li><li>AI chat refinement</li><li>Priority AI speed</li><li>No watermark</li><li>Export & embed</li></ul>
+        <button class="gs-plan-btn btn-gold" onclick="gsActivatePro('creator')">Get Creator</button>
+      </div>
+      <div class="gs-plan">
+        <h3>Studio</h3>
+        <div class="gs-price">$29<span class="gs-price-sub">/month</span></div>
+        <ul><li>Everything in Creator</li><li>Commercial license</li><li>API access</li><li>White-label</li><li>Priority support</li></ul>
+        <button class="gs-plan-btn" onclick="gsActivatePro('studio')">Get Studio</button>
+      </div>
+    </div>
+    <div class="gs-upgrade-note">Have a Groq API key? <a onclick="openSettings();closeGSUpgrade();">Enter it in ⚙ Settings</a> for unlimited access &nbsp;·&nbsp; <a onclick="closeGSUpgrade();">Maybe later</a></div>
   </div>
 </div>
 
@@ -1097,114 +1214,381 @@ Return ONLY the polished chapter. No preamble, no notes, no explanation.`;
   /* ── Toast ── */
   function showToast(msg){toast.textContent=msg;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2400);}
 
-  /* ── Game Creator ── */
-  let generatedGameCode = '';
+  /* ── GameForge AI Studio ── */
+  let gsHistory = JSON.parse(localStorage.getItem('gs_history') || '[]');
+  let gsProfile = JSON.parse(localStorage.getItem('gs_profile') || '{}');
+  let gsChatHistory = [];
+  let gsCurrentCode = '';
+  let gsThinking = false;
+  const GS_FREE_LIMIT = 5;
 
-  function openGameCreator() { document.getElementById('game-creator-panel').classList.add('open'); }
-  function closeGameCreator() { document.getElementById('game-creator-panel').classList.remove('open'); }
+  // HD game generation system prompt — high standards enforced
+  const GS_SYSTEM = `You are GameForge AI — a senior HTML5 game engineer and creative director with expertise in building beautiful, polished, high-definition browser games. You help users design and build any game through natural conversation.
 
-  function pickGameType(prompt) {
-    document.getElementById('game-prompt').value = prompt;
-    document.getElementById('game-prompt').focus();
-    showToast('Game type selected — hit Generate!');
+CONVERSATION RULES:
+1. When a user describes a game they want built: respond with ONE brief sentence of enthusiasm, then output EXACTLY the text |||BUILDING||| on its own line, then IMMEDIATELY output the full HTML game — no other text after the marker until the game code is done.
+2. When a user wants to MODIFY an existing game (says "add", "make", "change", "increase", "fix", etc.): say ONE brief sentence, then |||MODIFYING||| on its own line, then the complete modified HTML.
+3. After the closing </html> tag, add a short paragraph suggesting 2–3 specific improvements the user could request.
+4. For pure questions or clarifications (no game intent): respond conversationally in 2–3 sentences max.
+
+HD GAME CODE STANDARDS (required after |||BUILDING||| or |||MODIFYING|||):
+- Begin IMMEDIATELY with <!DOCTYPE html> — absolutely no markdown fences, no backticks, no preamble
+- End with </html>
+- All CSS in <style>, all JS in <script> — ZERO external dependencies, no CDN links
+- Canvas 2D API for all rendering — size the canvas to fill the viewport (window.innerWidth × window.innerHeight) and handle resize events
+- Use devicePixelRatio for crisp HiDPI/Retina rendering: set canvas width/height *= dpr, scale ctx accordingly
+- Visual polish required: smooth gradients, glow effects (ctx.shadowBlur/shadowColor), particle systems for impacts/explosions, screen-shake on hit
+- Typography: use system fonts in bold, render score/UI as large crisp text with drop shadows
+- Color: vivid, high-contrast palettes — neons on dark backgrounds look stunning; avoid flat grey
+- Animation: 60 fps via requestAnimationFrame, use delta-time so speed is frame-rate independent
+- Controls: keyboard (WASD/arrows/Space) AND pointer events (click/touch) — show on-screen control hints
+- Game loop must include: title/start screen, gameplay, pause (P key), game-over with final score, restart (R or button)
+- Audio: use Web Audio API to generate simple procedural sound effects (beeps, booms) — no external files needed
+- Complete the entire game — never truncate, never omit closing tags`;
+
+  // Usage / tier helpers
+  function gsDayKey() { return 'gs_use_' + new Date().toDateString(); }
+  function gsGetUsage() { return parseInt(localStorage.getItem(gsDayKey()) || '0'); }
+  function gsIncrUsage() { localStorage.setItem(gsDayKey(), gsGetUsage() + 1); gsUpdateUsage(); }
+  function gsIsPro() { return localStorage.getItem('gs_plan') === 'pro' || localStorage.getItem('gs_plan') === 'studio'; }
+  function gsCanGenerate() { return !!apiKey && (gsIsPro() || gsGetUsage() < GS_FREE_LIMIT); }
+
+  function gsUpdateUsage() {
+    const used = gsGetUsage();
+    const fill = document.getElementById('gs-usage-fill');
+    const text = document.getElementById('gs-usage-text');
+    const badge = document.getElementById('gs-usage-badge');
+    const hdrBadge = document.getElementById('gs-hdr-badge');
+    if (!fill) return;
+    if (gsIsPro()) {
+      fill.style.width = '100%'; fill.style.background = 'var(--gold)';
+      text.textContent = 'Unlimited ⚡';
+      [badge, hdrBadge].forEach(b => { if(b){b.className='gs-tier-badge pro'; b.textContent='PRO';} });
+    } else {
+      const pct = Math.min(100, (used / GS_FREE_LIMIT) * 100);
+      fill.style.width = pct + '%';
+      fill.style.background = used >= GS_FREE_LIMIT ? 'var(--red)' : 'var(--green)';
+      text.textContent = `${used} / ${GS_FREE_LIMIT} today`;
+      [badge, hdrBadge].forEach(b => { if(b){b.className='gs-tier-badge free'; b.textContent='FREE';} });
+    }
   }
 
-  function useGameIdea(el) {
-    document.getElementById('game-prompt').value = el.textContent.trim();
-    document.getElementById('game-prompt').focus();
-    showToast('Idea loaded — hit Generate Game!');
+  // HTML extraction from AI response
+  function gsExtractHTML(text) {
+    // Strip markdown fences if AI included them despite instructions
+    text = text.replace(/```html\n?/gi, '').replace(/```\n?/g, '');
+    const start = text.search(/<!doctype html/i);
+    if (start === -1) return null;
+    const end = text.lastIndexOf('</html>');
+    return end > -1 ? text.slice(start, end + 7) : text.slice(start);
   }
 
-  async function generateGame() {
-    if (!apiKey) { openSettings(); return; }
-    const prompt = document.getElementById('game-prompt').value.trim();
-    if (!prompt) { showToast('Describe your game first'); return; }
-
-    const thinking = document.getElementById('game-thinking');
-    const previewArea = document.getElementById('game-preview-area');
-    const actions = document.getElementById('game-actions');
-    const codeView = document.getElementById('game-code-view');
-
-    thinking.classList.add('visible');
-    previewArea.style.display = 'none';
-    actions.style.display = 'none';
+  function gsLoadGame(html) {
+    const iframe = document.getElementById('gs-iframe');
+    const placeholder = document.getElementById('gs-placeholder');
+    const codeView = document.getElementById('gs-code-pre');
+    const blob = new Blob([html], {type: 'text/html'});
+    const url = URL.createObjectURL(blob);
+    iframe.onload = () => URL.revokeObjectURL(url);
+    iframe.src = url;
+    iframe.style.display = 'block';
     codeView.style.display = 'none';
-    generatedGameCode = '';
+    placeholder.style.display = 'none';
+    ['gs-dl-btn','gs-copy-btn','gs-code-btn','gs-back-btn'].forEach(id => {
+      const el = document.getElementById(id); if(el) el.style.display = '';
+    });
+    document.getElementById('gs-preview-col').classList.add('shown');
+  }
 
-    const systemPrompt = `You are an expert HTML5 game developer. Output ONLY raw HTML — no markdown fences, no explanations, no commentary.
+  function gsAppendMsg(role, text, thinking = false) {
+    const msgs = document.getElementById('gs-messages');
+    const div = document.createElement('div');
+    div.className = 'gsmsg ' + role + (thinking ? ' thinking' : '');
+    div.textContent = text;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    return div;
+  }
 
-REQUIREMENTS:
-- Begin immediately with <!DOCTYPE html> and end with </html>
-- All CSS inside <style> tags, all JavaScript inside <script> tags
-- Zero external dependencies — no CDN links, no external images, no external fonts
-- Use the Canvas 2D API or DOM elements for all visuals
-- Support keyboard AND mouse/touch input where applicable
-- Include: a visible score or status display, clear game-over detection, and a restart option (button on screen or press R/Space)
-- Dark, modern visual style — clean and polished
-- Smooth 60 fps gameplay using requestAnimationFrame where appropriate
-- Output the ENTIRE complete game — never truncate or omit sections`;
+  // Context-aware quick action chips
+  function gsSetChips(hasGame) {
+    const chips = document.getElementById('gs-chips');
+    chips.innerHTML = '';
+    const items = hasGame
+      ? [['⚡ Make harder','Make the game noticeably harder — faster enemies, tighter timing, more obstacles'],
+         ['🎨 New color theme','Give the game a completely different vivid color scheme'],
+         ['➕ Add power-ups','Add 3 different power-up types with visual effects when collected'],
+         ['🏆 Leaderboard','Add a local high-score leaderboard showing the top 10 scores'],
+         ['🔊 Sound effects','Add procedural Web Audio sound effects for all game events'],
+         ['🆕 New game','Start fresh — let\'s build a completely different game']]
+      : [['🎲 Surprise me','Build me something creative and unexpected — surprise me with a unique game concept!'],
+         ['🐍 Snake','Classic Snake with neon visuals, power-ups, and speed levels'],
+         ['👾 Space Invaders','Space Invaders with HD particle explosions, shields, and boss waves'],
+         ['🧩 Tetris','Tetris with smooth piece movement, ghost piece, and level progression'],
+         ['🏃 Runner','Endless runner with parallax backgrounds and obstacle variety'],
+         ['🃏 Card Match','Animated memory card matching with emoji cards and combo scoring']];
+    items.forEach(([label, prompt]) => {
+      const chip = document.createElement('div');
+      chip.className = 'gschip';
+      chip.textContent = label;
+      chip.onclick = () => { document.getElementById('gs-input').value = prompt; sendGSChat(); };
+      chips.appendChild(chip);
+    });
+  }
 
-    const userPrompt = `Build this game: ${prompt}
+  // AI preference learning
+  function gsLearnFromPrompt(prompt) {
+    const p = prompt.toLowerCase();
+    gsProfile.totalGames = (gsProfile.totalGames || 0) + 1;
+    gsProfile.prompts = (gsProfile.prompts || []);
+    gsProfile.prompts.push({ p: prompt.slice(0, 80), t: Date.now() });
+    if (gsProfile.prompts.length > 30) gsProfile.prompts = gsProfile.prompts.slice(-30);
+    const genres = {
+      arcade: /shoot|invader|bullet|arcade|blast|space/,
+      puzzle: /puzzle|match|tile|word|quiz|math|2048/,
+      platformer: /platform|jump|run|climb|side.scrol/,
+      strategy: /tower|defense|strategy|build|manage|city/,
+      rpg: /rpg|dungeon|quest|adventure|role|dragon/,
+      casual: /click|idle|tap|casual|snake|flap|pong/
+    };
+    for (const [g, rx] of Object.entries(genres)) {
+      if (rx.test(p)) {
+        gsProfile.genres = gsProfile.genres || {};
+        gsProfile.genres[g] = (gsProfile.genres[g] || 0) + 1;
+      }
+    }
+    localStorage.setItem('gs_profile', JSON.stringify(gsProfile));
+  }
 
-Output ONLY the complete, self-contained HTML file starting with <!DOCTYPE html>.`;
+  function gsBuildContext() {
+    const parts = [];
+    if (gsProfile.totalGames) parts.push(`has built ${gsProfile.totalGames} games`);
+    if (gsProfile.genres) {
+      const top = Object.entries(gsProfile.genres).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([g])=>g).join(' and ');
+      if (top) parts.push(`favors ${top} games`);
+    }
+    if ((gsProfile.prompts||[]).length > 2) {
+      const recent = gsProfile.prompts.slice(-3).map(p=>p.p).join('; ');
+      parts.push(`recent games: ${recent}`);
+    }
+    return parts.length ? `\n\nUSER CONTEXT: This user ${parts.join(', ')}.` : '';
+  }
+
+  function gsSaveToLibrary() {
+    const lastUser = gsChatHistory.slice().reverse().find(m => m.role === 'user');
+    const entry = { id: Date.now(), name: (lastUser?.content || 'Game').slice(0, 60), code: gsCurrentCode, ts: Date.now() };
+    gsHistory.unshift(entry);
+    if (gsHistory.length > 40) gsHistory = gsHistory.slice(0, 40);
+    localStorage.setItem('gs_history', JSON.stringify(gsHistory));
+  }
+
+  // Main chat handler
+  async function sendGSChat() {
+    const input = document.getElementById('gs-input');
+    const msg = input.value.trim();
+    if (!msg || gsThinking) return;
+    if (!apiKey) { showToast('Add your Groq API key in ⚙ Settings'); openSettings(); return; }
+
+    input.value = '';
+    input.style.height = 'auto';
+    gsAppendMsg('user', msg);
+    gsChatHistory.push({ role: 'user', content: msg });
+
+    gsThinking = true;
+    const thinking = gsAppendMsg('ai', '✦ GameForge is building...', true);
+
+    let sysPrompt = GS_SYSTEM + gsBuildContext();
+    if (gsCurrentCode) {
+      sysPrompt += `\n\nCURRENT GAME CODE (modify this when user requests changes):\n${gsCurrentCode.slice(0, 5500)}`;
+    }
 
     try {
-      const code = await groqCall([{role:'user',content:userPrompt}], systemPrompt, 8000);
+      const response = await groqCall(gsChatHistory.slice(-8), sysPrompt, 8000);
+      thinking.remove();
 
-      let html = code.trim();
-      const fenced = html.match(/```(?:html)?\n?([\s\S]*?)```/);
-      if (fenced) html = fenced[1].trim();
-      if (!html.toLowerCase().startsWith('<!doctype') && !html.toLowerCase().startsWith('<html')) {
-        const idx = html.toLowerCase().indexOf('<!doctype');
-        if (idx > 0) html = html.slice(idx);
+      const isBuilding = response.includes('|||BUILDING|||');
+      const isModifying = response.includes('|||MODIFYING|||');
+
+      if (isBuilding || isModifying) {
+        if (!gsCanGenerate()) { gsThinking = false; showGSUpgrade(); return; }
+
+        const html = gsExtractHTML(response);
+        if (html && html.length > 300) {
+          gsCurrentCode = html;
+          gsLoadGame(html);
+          gsLearnFromPrompt(msg);
+          gsIncrUsage();
+          gsSaveToLibrary();
+
+          // Extract pre-marker text and post-html suggestions
+          const markerIdx = Math.max(response.indexOf('|||BUILDING|||'), response.indexOf('|||MODIFYING|||'));
+          const preText = response.slice(0, markerIdx).replace(/\|+[A-Z]+\|+/g,'').trim();
+          const htmlEnd = response.lastIndexOf('</html>');
+          const postText = htmlEnd > -1 ? response.slice(htmlEnd + 7).replace(/```/g,'').trim() : '';
+          const action = isModifying ? 'updated' : 'built';
+
+          const displayMsg = (preText || `✦ Your game is ${action}!`) + (postText ? '\n\n' + postText : '');
+          gsChatHistory.push({ role: 'assistant', content: `Game ${action} successfully. ${postText}` });
+          gsAppendMsg('ai', displayMsg);
+          gsSetChips(true);
+          showToast('✦ Game ready — click to play!');
+        } else {
+          const clean = response.replace(/\|+[A-Z]+\|+/g,'').replace(/```[\s\S]*?```/g,'').trim();
+          gsChatHistory.push({ role: 'assistant', content: clean });
+          gsAppendMsg('ai', clean || 'I had trouble generating the game. Try rephrasing your description.');
+          gsSetChips(!!gsCurrentCode);
+        }
+      } else {
+        gsChatHistory.push({ role: 'assistant', content: response });
+        gsAppendMsg('ai', response);
+        gsSetChips(!!gsCurrentCode);
       }
-
-      generatedGameCode = html;
-
-      const blob = new Blob([html], {type: 'text/html'});
-      const url = URL.createObjectURL(blob);
-      const iframe = document.getElementById('game-iframe');
-      iframe.onload = () => URL.revokeObjectURL(url);
-      iframe.src = url;
-
-      previewArea.style.display = 'block';
-      actions.style.display = 'flex';
-      showToast('✦ Game ready — click inside to play!');
     } catch(e) {
-      showToast('Generation failed — check API key in Settings');
+      thinking.remove();
+      gsAppendMsg('ai', 'Connection error — please check your Groq API key in ⚙ Settings.');
     }
-    thinking.classList.remove('visible');
+    gsThinking = false;
   }
 
-  function downloadGame() {
-    if (!generatedGameCode) { showToast('Generate a game first'); return; }
-    const slug = document.getElementById('game-prompt').value.trim().slice(0,40).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-    const blob = new Blob([generatedGameCode], {type: 'text/html'});
+  // Preview actions
+  function gsDownload() {
+    if (!gsCurrentCode) { showToast('No game yet'); return; }
+    const lastUser = gsChatHistory.slice().reverse().find(m=>m.role==='user');
+    const slug = (lastUser?.content||'game').slice(0,40).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    const blob = new Blob([gsCurrentCode], {type:'text/html'});
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `game-${slug||'created'}.html`; a.click();
-    URL.revokeObjectURL(url);
-    showToast('Game downloaded ✓');
+    const a = document.createElement('a'); a.href=url; a.download=`game-${slug}.html`; a.click();
+    URL.revokeObjectURL(url); showToast('Game downloaded ✓');
+  }
+  function gsCopyCode() {
+    if (!gsCurrentCode) { showToast('No game yet'); return; }
+    navigator.clipboard.writeText(gsCurrentCode).then(()=>showToast('Code copied ✓'));
+  }
+  function gsToggleCode() {
+    const iframe = document.getElementById('gs-iframe');
+    const pre = document.getElementById('gs-code-pre');
+    if (pre.style.display !== 'none') { pre.style.display='none'; iframe.style.display='block'; }
+    else { pre.textContent=gsCurrentCode; pre.style.display='block'; iframe.style.display='none'; }
   }
 
-  function copyGameCode() {
-    if (!generatedGameCode) { showToast('Generate a game first'); return; }
-    navigator.clipboard.writeText(generatedGameCode).then(() => showToast('Code copied ✓'));
+  // Tab management
+  function switchGSTab(tab, btn) {
+    document.querySelectorAll('.gstab').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    document.querySelectorAll('.gs-tab-pane').forEach(p => p.classList.remove('active'));
+    document.getElementById('gs-pane-' + tab).classList.add('active');
+    if (tab === 'library') gsRenderLibrary();
+    if (tab === 'profile') gsRenderProfile();
   }
 
-  function toggleGameCode() {
-    const codeView = document.getElementById('game-code-view');
-    const iframe = document.getElementById('game-iframe');
-    const showing = codeView.style.display !== 'none';
-    if (showing) {
-      codeView.style.display = 'none';
-      iframe.style.display = 'block';
-    } else {
-      codeView.textContent = generatedGameCode;
-      codeView.style.display = 'block';
-      iframe.style.display = 'none';
+  // Library
+  function gsRenderLibrary() {
+    const grid = document.getElementById('gs-library-grid');
+    if (!gsHistory.length) {
+      grid.innerHTML = '<div style="color:var(--muted);font-family:\'Inconsolata\',monospace;font-size:12px;text-align:center;padding:40px;grid-column:1/-1;">No saved games yet.<br>Build your first game in the ✦ Create tab!</div>';
+      return;
     }
+    const icons = ['🎮','🕹️','👾','🐍','🧩','⚡','🎯','🏆','🚀','🌀'];
+    grid.innerHTML = '';
+    gsHistory.forEach(game => {
+      const card = document.createElement('div');
+      card.className = 'gs-lib-card';
+      const icon = icons[game.id % icons.length];
+      const bg = `linear-gradient(135deg,hsl(${game.id%360},30%,8%),hsl(${(game.id+120)%360},25%,10%))`;
+      card.innerHTML = `<div class="gs-lib-thumb" style="background:${bg}">${icon}</div><div class="gs-lib-body"><div class="gs-lib-name">${game.name}</div><div class="gs-lib-meta">${gsAgo(game.ts)}</div></div><div class="gs-lib-footer"><button onclick="gsPlayLib(${game.id})" class="btn-green">▶ Play</button><button onclick="gsDownloadLib(${game.id})">⬇</button><button onclick="gsDeleteLib(${game.id})" class="btn-danger">✕</button></div>`;
+      grid.appendChild(card);
+    });
   }
+  function gsPlayLib(id) {
+    const g = gsHistory.find(x=>x.id===id); if(!g)return;
+    gsCurrentCode = g.code; gsLoadGame(g.code);
+    switchGSTab('create', document.querySelector('.gstab'));
+    gsAppendMsg('sys', `📂 Loaded: "${g.name.slice(0,40)}"`);
+    gsSetChips(true);
+  }
+  function gsDownloadLib(id) {
+    const g = gsHistory.find(x=>x.id===id); if(!g)return;
+    const slug = g.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    const blob = new Blob([g.code], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download=`game-${slug}.html`; a.click();
+    URL.revokeObjectURL(url); showToast('Downloaded ✓');
+  }
+  function gsDeleteLib(id) {
+    if (!confirm('Delete this game?')) return;
+    gsHistory = gsHistory.filter(x=>x.id!==id);
+    localStorage.setItem('gs_history', JSON.stringify(gsHistory));
+    gsRenderLibrary();
+  }
+  function gsAgo(ts) {
+    const d = Date.now()-ts, m=Math.floor(d/6e4), h=Math.floor(d/36e5), dy=Math.floor(d/864e5);
+    return m<2?'just now':h<1?`${m}m ago`:dy<1?`${h}h ago`:`${dy}d ago`;
+  }
+
+  // Profile tab
+  function gsRenderProfile() {
+    const scroll = document.getElementById('gs-profile-scroll');
+    const total = gsProfile.totalGames || 0;
+    const genres = gsProfile.genres || {};
+    const maxG = Math.max(...Object.values(genres), 1);
+    const genreHTML = Object.entries(genres).length
+      ? Object.entries(genres).sort((a,b)=>b[1]-a[1]).map(([g,n])=>`<div class="gs-genre-row"><div class="gs-genre-label"><span>${g.charAt(0).toUpperCase()+g.slice(1)}</span><span>${n}</span></div><div class="gs-genre-track"><div class="gs-genre-fill" style="width:${Math.round(n/maxG*100)}%"></div></div></div>`).join('')
+      : '<div style="color:var(--muted);font-family:\'Inconsolata\',monospace;font-size:11px;">Build games to see your preferences</div>';
+    const recentHTML = (gsProfile.prompts||[]).slice(-5).reverse().map(p=>`<div style="color:#c8d8c9;font-family:\'Inconsolata\',monospace;font-size:11px;padding:5px 0;border-bottom:1px solid var(--border);">${p.p}</div>`).join('') || '<div style="color:var(--muted);font-family:\'Inconsolata\',monospace;font-size:11px;">No games built yet</div>';
+    scroll.innerHTML = `
+      <div class="gs-profile-card"><h4>🧠 Your GameForge Profile</h4>
+        <div class="gs-stat"><span>Games Created</span><span class="gs-stat-val">${total}</span></div>
+        <div class="gs-stat"><span>Saved in Library</span><span class="gs-stat-val">${gsHistory.length}</span></div>
+        <div class="gs-stat"><span>Plan</span><span class="gs-stat-val">${gsIsPro()?'Pro ⚡':'Free'}</span></div>
+        <div class="gs-stat"><span>Today's Usage</span><span class="gs-stat-val">${gsIsPro()?'Unlimited':gsGetUsage()+'/'+GS_FREE_LIMIT}</span></div>
+      </div>
+      <div class="gs-profile-card"><h4>🎯 Genre Preferences</h4>${genreHTML}</div>
+      <div class="gs-profile-card"><h4>📝 Recent Games</h4>${recentHTML}</div>
+      <div class="gs-profile-card"><h4>⚙ AI Memory</h4>
+        <p style="font-family:'Inconsolata',monospace;font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:10px;">GameForge AI learns from every game you build — your favorite genres, themes, and complexity preferences are remembered to personalize suggestions and improve quality over time.</p>
+        <button onclick="if(confirm('Clear AI memory and game library?')){gsProfile={};gsHistory=[];localStorage.removeItem('gs_profile');localStorage.removeItem('gs_history');gsRenderProfile();showToast('Memory cleared');}" class="btn-danger" style="width:100%;font-size:10px;">🗑 Clear All Memory & Library</button>
+      </div>`;
+  }
+
+  // Upgrade modal
+  function showGSUpgrade() { document.getElementById('gs-upgrade-overlay').classList.add('open'); }
+  function closeGSUpgrade() { document.getElementById('gs-upgrade-overlay').classList.remove('open'); }
+  function gsActivatePro(plan) {
+    const code = prompt(`Enter your ${plan === 'creator' ? 'Creator' : 'Studio'} activation code or a Groq API key to unlock Pro:`);
+    if (code && code.length > 8) {
+      localStorage.setItem('gs_plan', plan === 'studio' ? 'studio' : 'pro');
+      if (code.startsWith('gsk_')) { localStorage.setItem('groq_api_key', code); apiKey = code; document.getElementById('setup-overlay').classList.add('hidden'); }
+      closeGSUpgrade(); gsUpdateUsage();
+      showToast('⚡ Pro activated — unlimited game creation!');
+      gsAppendMsg('sys', '⚡ Pro plan activated! Unlimited HD game creation unlocked.');
+    } else { showToast('Invalid code — contact support@gameforge.ai'); }
+  }
+
+  // Open / close
+  function openGameCreator() {
+    document.getElementById('game-creator-panel').classList.add('open');
+    if (document.getElementById('gs-messages').children.length === 0) gsInitStudio();
+    gsUpdateUsage();
+  }
+  function closeGameCreator() { document.getElementById('game-creator-panel').classList.remove('open'); }
+
+  function gsInitStudio() {
+    const total = gsProfile.totalGames || 0;
+    let greeting;
+    if (total > 10) greeting = `Welcome back! 🎮 You've shipped ${total} games — ready to build another? What are we creating today?`;
+    else if (total > 0) greeting = `Good to see you again! 👋 You've built ${total} game${total>1?'s':''} so far. What shall we create next?`;
+    else greeting = `Welcome to GameForge AI! 🎮✨\n\nI'm your AI game engineer. Describe any game in plain English and I'll build it as a fully-playable, high-definition HTML5 game — right in this browser.\n\nExamples:\n• "a neon snake game with power-ups"\n• "space invaders with HD particle explosions"\n• "a word puzzle with a timer and leaderboard"\n\nWhat shall we create?`;
+    gsAppendMsg('ai', greeting);
+    gsSetChips(false);
+  }
+
+  // Wire up gs-input events after DOM is ready
+  window.addEventListener('load', () => {
+    const inp = document.getElementById('gs-input');
+    if (!inp) return;
+    inp.addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendGSChat();} });
+    inp.addEventListener('input', () => { inp.style.height='auto'; inp.style.height=Math.min(80,inp.scrollHeight)+'px'; });
+  });
 
   /* ── Keyboard ── */
   document.addEventListener('keydown',e=>{
