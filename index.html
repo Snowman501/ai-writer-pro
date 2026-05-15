@@ -566,6 +566,7 @@
   let voiceSample = localStorage.getItem('voice_sample') || '';
   let books = JSON.parse(localStorage.getItem('author_books') || '[]');
   let seriesBible = JSON.parse(localStorage.getItem('series_bible') || '{}');
+  let activeBookId = parseInt(localStorage.getItem('active_book_id')) || null;
 
   const GENRE_CONFIG = {
     memoir:   { icon:'📖', name:'Memoir',         system:'You are an expert memoir editor. Write in first person, emotionally honest, grounded in specific sensory memory. Voice is intimate, literary, and real. Avoid clichés.' },
@@ -665,6 +666,10 @@
     if (doc) doc.content = editor.value;
     localStorage.setItem('writer_docs', JSON.stringify(docs));
     localStorage.setItem('writer_active_doc', activeDocId);
+    if (activeBookId) {
+      const book = books.find(b => b.id === activeBookId);
+      if (book) { book.words = getWordCount(); localStorage.setItem('author_books', JSON.stringify(books)); }
+    }
   }
   function newTab() { saveCurrentDoc(); const doc = { id: Date.now(), name: 'untitled.txt', content: '' }; docs.push(doc); activeDocId = doc.id; renderTabs(); loadActiveDoc(); editor.focus(); }
   function closeTab(e, id) { e.stopPropagation(); if (docs.length === 1) { showToast('Cannot close last document'); return; } if (!confirm('Close this document?')) return; docs = docs.filter(d => d.id !== id); if (activeDocId === id) activeDocId = docs[docs.length-1].id; localStorage.setItem('writer_docs', JSON.stringify(docs)); renderTabs(); loadActiveDoc(); }
@@ -916,10 +921,21 @@ Return ONLY the polished chapter. No preamble, no notes, no explanation.`;
       const g = GENRE_CONFIG[book.genre] || GENRE_CONFIG.memoir;
       const div = document.createElement('div');
       div.className = 'book-card';
-      div.innerHTML = `<h3>${g.icon} ${book.title}</h3><div class="book-meta"><span class="book-genre">${g.name}</span><span>${book.words.toLocaleString()} / ${book.target.toLocaleString()} words</span></div>${book.desc?`<div style="color:var(--muted);font-size:11px;margin-top:4px;font-family:'Inconsolata',monospace;">${book.desc}</div>`:''}<div class="book-progress"><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></div>`;
-      div.onclick = () => { setGenre(book.genre); closeBooks(); showToast(`Switched to: ${book.title}`); };
+      div.innerHTML = `<h3>${g.icon} ${book.title}</h3><div class="book-meta"><span class="book-genre">${g.name}</span><span>${book.words.toLocaleString()} / ${book.target.toLocaleString()} words</span>${book.id===activeBookId?'<span style="color:var(--green);">● active</span>':''}</div>${book.desc?`<div style="color:var(--muted);font-size:11px;margin-top:4px;font-family:'Inconsolata',monospace;">${book.desc}</div>`:''}<div class="book-progress"><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></div><div style="margin-top:8px;text-align:right;"><button onclick="deleteBook(${book.id},event)" style="font-size:10px;padding:3px 7px;border-color:var(--red);color:var(--red);">✕ Delete</button></div>`;
+      div.onclick = () => { activeBookId = book.id; localStorage.setItem('active_book_id', book.id); setGenre(book.genre); closeBooks(); showToast(`Writing: ${book.title}`); };
       list.appendChild(div);
     });
+  }
+
+  function deleteBook(id, e) {
+    e.stopPropagation();
+    const book = books.find(b => b.id === id);
+    if (!book || !confirm(`Delete "${book.title}"?`)) return;
+    books = books.filter(b => b.id !== id);
+    if (activeBookId === id) { activeBookId = null; localStorage.removeItem('active_book_id'); }
+    localStorage.setItem('author_books', JSON.stringify(books));
+    renderBooks();
+    showToast(`"${book.title}" deleted`);
   }
 
   /* ── Voice Analyzer ── */
