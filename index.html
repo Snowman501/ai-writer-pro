@@ -10,7 +10,7 @@
   <title>AI Writer Pro</title>
   <link rel="manifest" href="manifest.json" />
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Inconsolata:wght@400;500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Inconsolata:wght@400;500&family=Merriweather:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400;1,400;1,700&display=swap');
 
     :root {
       --bg: #1a1610;
@@ -267,6 +267,66 @@
       #editor { padding: 24px 16px; font-size: 16px; border-radius: 0; box-shadow: none; }
       #editor-wrap { padding: 0 0 90px; }
     }
+
+    /* ── Pulse Background ── */
+    @keyframes midnightPulse {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes typingFlare {
+      0%   { opacity: 0.6; }
+      100% { opacity: 0; }
+    }
+    #editor-wrap {
+      background: linear-gradient(-45deg, #0c1520, #07090f, #0e1218, #090c16);
+      background-size: 400% 400%;
+      animation: midnightPulse 16s ease infinite;
+      position: relative;
+    }
+    body.typing-pulse #editor-wrap { animation-duration: 4s; }
+    body.typing-pulse #editor-wrap::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(30, 110, 220, 0.09) 0%, transparent 65%);
+      pointer-events: none;
+      animation: typingFlare 1s ease-out forwards;
+    }
+
+    /* ── Cinematic Focus (Memoir Mode) ── */
+    #chat-panel  { transition: width 0.3s ease, opacity 1.8s ease; }
+    #tabs-bar, #genre-badge, #toolbar, #stats { transition: opacity 1.8s ease; }
+    body.cinematic-focus #chat-panel  { opacity: 0.06; pointer-events: none; }
+    body.cinematic-focus #tabs-bar    { opacity: 0.08; }
+    body.cinematic-focus #genre-badge { opacity: 0.08; }
+    body.cinematic-focus #toolbar     { opacity: 0.08; pointer-events: none; }
+    body.cinematic-focus #stats       { opacity: 0.08; }
+    body.cinematic-focus #editor {
+      box-shadow:
+        0 0 0 1px rgba(40, 160, 255, 0.18),
+        0 0 28px rgba(30, 130, 255, 0.12),
+        0 0 80px rgba(20, 90, 200, 0.06),
+        0 4px 40px rgba(0, 0, 0, 0.65);
+      transition: box-shadow 1.8s ease;
+    }
+
+    /* ── Genre Typography ── */
+    body.genre-memoir #editor,
+    body.genre-literary #editor,
+    body.genre-thriller #editor,
+    body.genre-romance #editor,
+    body.genre-series #editor {
+      font-family: 'Merriweather', Georgia, serif;
+      font-size: 16px;
+      line-height: 1.95;
+    }
+    body.genre-poetry #editor {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-size: 17px;
+      line-height: 2.2;
+    }
   </style>
 </head>
 <body>
@@ -340,6 +400,7 @@
       <button onclick="openBooks()" class="btn-gold">📚 Books</button>
       <button onclick="openVoice()" style="border-color:var(--gold);color:var(--gold);">🎤 Voice</button>
       <button onclick="openBible()" class="btn-blue">📋 Bible</button>
+      <button onclick="vowExport()" style="border-color:#4a9eff;color:#4a9eff;">✦ Vow</button>
       <button onclick="toggleFocus()">◎</button>
       <button onclick="openSettings()">⚙</button>
     </div>
@@ -558,6 +619,8 @@
   let currentMode = 'continue';
   let lastResult = '';
   let saveTimer = null;
+  let cinematicTimer = null;
+  let typingPulseTimer = null;
   let chatHistory = [];
   let isChatOpen = false;
   let currentPromptType = 'memoir';
@@ -598,6 +661,7 @@
   window.addEventListener('load', () => {
     if (apiKey) document.getElementById('setup-overlay').classList.add('hidden');
     renderTabs(); loadActiveDoc(); updateGoalBar(); updateGenreBadge();
+    document.body.classList.add('genre-' + currentGenre);
     if (voiceProfile) document.getElementById('voice-locked-badge').classList.add('visible');
     loadBible();
   });
@@ -611,6 +675,8 @@
   function openGenrePanel() { document.getElementById('genre-panel').classList.add('open'); }
   function closeGenrePanel() { document.getElementById('genre-panel').classList.remove('open'); }
   function setGenre(genre) {
+    Object.keys(GENRE_CONFIG).forEach(g => document.body.classList.remove('genre-' + g));
+    document.body.classList.add('genre-' + genre);
     currentGenre = genre;
     localStorage.setItem('current_genre', genre);
     updateGenreBadge();
@@ -683,6 +749,18 @@
     updateStats(); saveStatusEl.textContent = 'editing…'; saveStatusEl.className = '';
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => { saveCurrentDoc(); saveStatusEl.textContent = 'autosaved'; saveStatusEl.className = 'saved'; }, 1200);
+
+    // Cinematic focus — memoir mode only
+    if (currentGenre === 'memoir') {
+      document.body.classList.add('cinematic-focus');
+      clearTimeout(cinematicTimer);
+      cinematicTimer = setTimeout(() => document.body.classList.remove('cinematic-focus'), 4500);
+    }
+
+    // Typing pulse — all genres
+    document.body.classList.add('typing-pulse');
+    clearTimeout(typingPulseTimer);
+    typingPulseTimer = setTimeout(() => document.body.classList.remove('typing-pulse'), 900);
   });
 
   /* ── File ops ── */
@@ -1023,6 +1101,54 @@ Return ONLY the polished chapter. No preamble, no notes, no explanation.`;
 
   /* ── Toast ── */
   function showToast(msg){toast.textContent=msg;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2400);}
+
+  /* ── Vow Export ── */
+  function vowExport() {
+    const doc = docs.find(d => d.id === activeDocId);
+    const title = doc ? doc.name.replace(/\.[^.]+$/, '') : 'Untitled';
+    const content = editor.value.trim();
+    if (!content) { showToast('Nothing to export'); return; }
+    const wordCount = getWordCount();
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const escaped = content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title} — Vow</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400;1,400;1,700&display=swap" rel="stylesheet">
+<style>
+  @page { margin: 1.2in 1.5in; size: letter; }
+  * { box-sizing: border-box; }
+  body { font-family:'Merriweather',Georgia,serif; font-size:12pt; line-height:2; color:#1a1410; background:#fff; max-width:6.5in; margin:0 auto; }
+  .ornament { text-align:center; font-size:20pt; color:#8a7060; margin-bottom:.5em; letter-spacing:.3em; }
+  .title { font-family:'Playfair Display',Georgia,serif; font-size:26pt; font-style:italic; font-weight:700; text-align:center; margin-bottom:.2em; }
+  .byline { text-align:center; font-size:10pt; letter-spacing:.2em; text-transform:uppercase; color:#8a7060; font-family:'Merriweather',serif; margin-bottom:.3em; }
+  .dateline { text-align:center; font-size:9pt; color:#aaa; letter-spacing:.1em; font-family:'Merriweather',serif; margin-bottom:2em; }
+  hr { border:none; border-top:1px solid #c8b8a0; margin:1.5em 2em; }
+  .content { white-space:pre-wrap; font-size:12pt; line-height:2; }
+  .footer { margin-top:3em; padding-top:1.5em; border-top:1px solid #c8b8a0; display:flex; justify-content:space-between; align-items:flex-end; }
+  .footer-left { font-size:9pt; color:#aaa; font-family:'Merriweather',serif; }
+  .signature { font-family:'Playfair Display',Georgia,serif; font-size:26pt; font-style:italic; color:#1a1410; line-height:1.2; }
+  .sig-vow { font-size:8pt; color:#8a7060; letter-spacing:.15em; text-transform:uppercase; font-family:'Merriweather',serif; margin-top:.3em; }
+  @media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+</style></head><body>
+<div class="ornament">✦ &nbsp; ✦ &nbsp; ✦</div>
+<div class="title">${title}</div>
+<div class="byline">by Loren Barnhart</div>
+<div class="dateline">${date}</div>
+<hr>
+<div class="content">${escaped}</div>
+<div class="footer">
+  <div class="footer-left">${wordCount.toLocaleString()} words &nbsp;·&nbsp; ${doc ? doc.name : 'manuscript'}</div>
+  <div style="text-align:right;">
+    <div class="signature">Loren Barnhart</div>
+    <div class="sig-vow">Author's Vow</div>
+  </div>
+</div>
+<script>document.fonts.ready.then(()=>window.print());<\/script>
+</body></html>`;
+    const win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+    showToast('Vow Export ready — Save as PDF ✓');
+  }
 
   /* ── Keyboard ── */
   document.addEventListener('keydown',e=>{
