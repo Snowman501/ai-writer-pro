@@ -916,10 +916,19 @@ Return ONLY the polished chapter. No preamble, no notes, no explanation.`;
       const g = GENRE_CONFIG[book.genre] || GENRE_CONFIG.memoir;
       const div = document.createElement('div');
       div.className = 'book-card';
-      div.innerHTML = `<h3>${g.icon} ${book.title}</h3><div class="book-meta"><span class="book-genre">${g.name}</span><span>${book.words.toLocaleString()} / ${book.target.toLocaleString()} words</span></div>${book.desc?`<div style="color:var(--muted);font-size:11px;margin-top:4px;font-family:'Inconsolata',monospace;">${book.desc}</div>`:''}<div class="book-progress"><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></div>`;
+      div.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:flex-start;"><h3>${g.icon} ${book.title}</h3><button onclick="deleteBook(event,${book.id})" class="btn-danger" style="padding:2px 6px;font-size:10px;flex-shrink:0;">✕</button></div><div class="book-meta"><span class="book-genre">${g.name}</span><span>${book.words.toLocaleString()} / ${book.target.toLocaleString()} words</span></div>${book.desc?`<div style="color:var(--muted);font-size:11px;margin-top:4px;font-family:'Inconsolata',monospace;">${book.desc}</div>`:''}<div class="book-progress"><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></div>`;
       div.onclick = () => { setGenre(book.genre); closeBooks(); showToast(`Switched to: ${book.title}`); };
       list.appendChild(div);
     });
+  }
+  function deleteBook(e, id) {
+    e.stopPropagation();
+    const book = books.find(b => b.id === id);
+    if (!book || !confirm(`Delete "${book.title}"?`)) return;
+    books = books.filter(b => b.id !== id);
+    localStorage.setItem('author_books', JSON.stringify(books));
+    renderBooks();
+    showToast(`"${book.title}" deleted`);
   }
 
   /* ── Voice Analyzer ── */
