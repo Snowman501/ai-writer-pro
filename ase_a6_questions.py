@@ -4,7 +4,7 @@ Format: Technician A & B style, covering Ohm's Law, Voltage Drop,
 CAN Bus basics, and Battery Diagnostics.
 """
 
-questions = [
+a6_level_1 = [
     # ── Ohm's Law ──────────────────────────────────────────────
     {
         'q': (
