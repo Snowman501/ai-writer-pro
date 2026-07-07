@@ -552,6 +552,45 @@
 <div id="toast"></div>
 
 <script>
+// ===== AI WRITER PRO LICENSE =====
+function isPro() { return localStorage.getItem("awp_pro") === "true"; }
+
+async function activateLicense(key) {
+  const cleaned = (key || "").trim();
+  if (!cleaned) return { ok: false, message: "Please enter a license key." };
+  try {
+    const res = await fetch("https://slng-payment.vercel.app/api/validate-license", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: cleaned, app: "aiwriter" })
+    });
+    const data = await res.json();
+    if (data.valid) {
+      localStorage.setItem("awp_license", cleaned);
+      localStorage.setItem("awp_pro", "true");
+      return { ok: true, message: "Pro activated" };
+    }
+    return { ok: false, message: data.message || "Key not recognized." };
+  } catch (e) {
+    return { ok: false, message: "Could not reach license server." };
+  }
+}
+
+function showUpgradeModal() {
+  if (document.getElementById("awp-upgrade-modal")) return;
+  const o = document.createElement("div");
+  o.id = "awp-upgrade-modal";
+  o.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px;";
+  o.innerHTML = '<div style="background:#1e1e2e;color:#fff;border-radius:16px;max-width:340px;width:100%;padding:24px;text-align:center;">' +
+    '<div style="font-size:32px;">&#10024;</div><h2 style="margin:8px 0;">Unlock Pro</h2>' +
+    '<ul style="text-align:left;line-height:1.7;margin:12px 0;padding-left:20px;">' +
+    '<li>AI expand, polish and voice tools</li><li>DOCX and PDF export (coming)</li><li>Support an indie builder</li></ul>' +
+    '<a href="YOUR_CHECKOUT_LINK" target="_blank" style="display:block;background:#7c5cff;color:#fff;padding:12px;border-radius:10px;text-decoration:none;font-weight:bold;">Upgrade Now</a>' +
+    '<button onclick="document.getElementById(&quot;awp-upgrade-modal&quot;).remove()" style="margin-top:10px;background:none;border:none;color:#999;">Maybe later</button></div>';
+  o.addEventListener("click", function(e) { if (e.target === o) o.remove(); });
+  document.body.appendChild(o);
+}
+// ===== END LICENSE =====
   /* ── State ── */
   let apiKey = localStorage.getItem('groq_api_key') || '';
   let wordGoal = parseInt(localStorage.getItem('word_goal') || '0');
@@ -712,7 +751,7 @@
   /* ── Chapter Expander ── */
   function openExpander() { document.getElementById('expander-panel').classList.add('open'); }
   function closeExpander() { document.getElementById('expander-panel').classList.remove('open'); }
-  async function runExpander() {
+  async function runExpander() { if (!isPro()) { showUpgradeModal(); return; }
     if (!apiKey) { openSettings(); return; }
     const input = document.getElementById('expand-input').value.trim();
     if (!input) { showToast('Paste your chapter first'); return; }
@@ -794,7 +833,7 @@ Write the fully expanded version. Add ${remaining} more words of depth, detail, 
     thinking.classList.remove('visible');
   }
 
-  async function continueExpanding() {
+  async function continueExpanding() { if (!isPro()) { showUpgradeModal(); return; }
     if (!apiKey) { openSettings(); return; }
     const output = document.getElementById('expand-output');
     const currentText = output.textContent.trim();
@@ -858,7 +897,7 @@ Expand further. Add at least ${Math.max(500, target - currentWords)} more words 
   }
   function copyExpanded() { navigator.clipboard.writeText(document.getElementById('expand-output').textContent).then(()=>showToast('Copied ✓')); }
 
-  async function polishPass() {
+  async function polishPass() { if (!isPro()) { showUpgradeModal(); return; }
     if (!apiKey) { openSettings(); return; }
     const output = document.getElementById('expand-output');
     const currentText = output.textContent.trim();
@@ -956,7 +995,7 @@ Return ONLY the polished chapter. No preamble, no notes, no explanation.`;
   /* ── Quick AI ── */
   function toggleAI() { document.getElementById('ai-panel').classList.toggle('open'); if (!apiKey) showToast('Add Groq key in ⚙ Settings'); }
   function setMode(btn, mode) { document.querySelectorAll('.ai-modes button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); currentMode=mode; }
-  async function runAI() {
+  async function runAI() { if (!isPro()) { showUpgradeModal(); return; }
     if (!apiKey) { openSettings(); return; }
     const text = editor.value; const extra = document.getElementById('ai-prompt-input').value.trim(); const selected = getSelectedText();
     if (!text.trim() && currentMode !== 'custom') { showToast('Write something first'); return; }
@@ -990,7 +1029,7 @@ Return ONLY the polished chapter. No preamble, no notes, no explanation.`;
   /* ── Story Prompts ── */
   function togglePrompts() { document.getElementById('prompts-panel').classList.toggle('open'); if(!apiKey)showToast('Add Groq key in ⚙ Settings'); }
   function setPromptType(btn,type) { document.querySelectorAll('.prompt-type-row button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); currentPromptType=type; }
-  async function generatePrompts() {
+  async function generatePrompts() { if (!isPro()) { showUpgradeModal(); return; }
     if(!apiKey){openSettings();return;}
     const docContext=editor.value.trim().slice(0,400);
     const thinking=document.getElementById('prompts-thinking'); const list=document.getElementById('prompts-list');
